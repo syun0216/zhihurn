@@ -67,7 +67,11 @@ export default class CommonListView extends Component{
   }
 
   _renderHeaderView(){
+    return null;
+  }
 
+  _renderSectionHeaderView(){
+    return null;
   }
 
 }

@@ -16,10 +16,10 @@ import api from '../api/_index';
 import FullLoadingScreen from '../components/FullScreenLoading';
 import HTMLView from 'react-native-htmlview';
 import CommonCss from '../components/CommonCss'
-
+_winWidth = Dimensions.get('window').width;
+_winHeight = Dimensions.get('window').height;
 export default class ContentView extends Component {
-  _winWidth = Dimensions.get('window').width;
-  _winHeight = Dimensions.get('window').height;
+
   static navigationOptions = () => ({header: null,gesturesEnabled:false});
   // 构造
   constructor(props) {
