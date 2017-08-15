@@ -96,7 +96,7 @@ class DashBoardView extends Component {
             <Container>
               <Header>
                 <Left>
-                  <Button transparent onPress={() => this.props.navigation.navigate('DrawerOpen')}>
+                  <Button transparent onPress={() => this.props.navigation.navigate('DrawerOpen',{id:1})}>
                     <Image style={{width:24,height:24}} source={require('./assets/menu.png')} />
                   </Button>
                 </Left>
@@ -192,11 +192,14 @@ class DashBoardView extends Component {
    Content: {screen: ContentView}
  });
 
-const DashDrawePage = DrawerNavigator({
+const DashDrawerPage = DrawerNavigator({
     Home: {
         screen: mainView,
     },
     Theme: {
+         screen: ThemeView,
+    },
+    Theme1: {
          screen: ThemeView,
     },
 },{
@@ -240,7 +243,7 @@ const DashDrawePage = DrawerNavigator({
     },
 });
 
-module.exports = DashDrawePage;
+module.exports = DashDrawerPage;
 
 const styles = StyleSheet.create({
     iosSwiper: {

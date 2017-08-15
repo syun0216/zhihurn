@@ -1,11 +1,12 @@
 import React,{Component} from 'react';
-import {View,Text,StyleSheet,Image,Dimensions} from 'react-native';
+import {View,Text,StyleSheet,Image,Dimensions,ListView} from 'react-native';
 import {Header,Container,Content,Left,Body,Right,Button} from 'native-base';
-
+import api from '../api/_index';
+import FullScreenLoading from '../components/FullScreenLoading';
 export default class ThemeView extends Component{
   static navigationOptions = {
     header:null,
-    drawerLabel: 'Notifications',
+    drawerLabel: '日常心理学',
    drawerIcon: () => (
      <View>
            <Image
@@ -19,7 +20,31 @@ export default class ThemeView extends Component{
 
   constructor(props){
     super(props);
+    this.state = {
+      themeData:[],
+      isHttpRequesting:false
+    }
   }
+
+  componentDidMount(){
+    this._requestThemesData();
+  }
+
+  //requests
+  _requestThemesData(){
+    api.getTopicsById(13).then((data) => {
+      if(data.data !== null && data.data.stories.length !== 0){
+        this.setState({
+          themesData:data.data.stories
+        })
+      }
+    },() => {
+      console.log('Api goes wrong');
+    })
+  }
+
+  //views
+
     render(){
       return (
         <Container>
@@ -38,6 +63,18 @@ export default class ThemeView extends Component{
             </View>
           </Content>
         </Container>
+      )
+    }
+
+    _renderFullLoadingView(){
+      return <FullScreenLoading message="正在加载中..."/>
+    }
+
+    _renderThemeMainView(){
+      return (
+        <FlatList
+
+        />
       )
     }
 }

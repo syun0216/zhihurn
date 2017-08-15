@@ -20,7 +20,7 @@ import CommonCss from '../components/CommonCss'
 export default class ContentView extends Component {
   _winWidth = Dimensions.get('window').width;
   _winHeight = Dimensions.get('window').height;
-  static navigationOptions = () => ({header: null});
+  static navigationOptions = () => ({header: null,gesturesEnabled:false});
   // 构造
   constructor(props) {
     super(props);
