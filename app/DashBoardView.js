@@ -44,6 +44,10 @@ class DashBoardView extends Component {
 //requests
     _requestNewsData() {
         api.getNews().then((data) => {
+          if(data.data != null){
+            data.data.date = data.data.date.substring(0,4)+"/"+data.data.date.substring(4,6)+"/"+data.data.date.substring(6, 8);
+            data.data.weekday = this.setWeekDay(data.data.date);
+            data.data.date.substring(6,8);
             let _data = [];
             _data.push(data.data);
             this.setState({
@@ -52,6 +56,7 @@ class DashBoardView extends Component {
                 newsList:this.state.newsList.cloneWithRows(_data[0].stories)
             });
             console.log(this.state.newsData);
+          }
         }).catch((error) => {
             this.setState({
                 isHttpRequesting: false,
@@ -70,6 +75,20 @@ class DashBoardView extends Component {
         }
       })
     }
+
+//common functions
+  setWeekDay(date){
+    let _day = new Date(date).getDay();
+    switch(_day){
+      case 0 :return "星期日";break;
+      case 1 :return "星期一";break;
+      case 2 :return "星期二";break;
+      case 3 :return "星期三";break;
+      case 4 :return "星期四";break;
+      case 5 :return "星期五";break;
+      case 6 :return "星期六";break;
+    }
+  }
 
 //views
     render() {
@@ -102,7 +121,7 @@ class DashBoardView extends Component {
             initialListSize={10}
             pageSize={10}
             dataSource={this.state.newsList}
-            // renderSectionHeader={() => this._renderSectionHeader()}
+            renderSectionHeader={(sectionData,sectionID) => this._renderSectionHeader(sectionData,sectionID)}
             renderRow={(rowData) => this._renderNewsItem(rowData)}
             renderHeader={() => this._swiperView()}
             // renderSeparator={(sectionID, rowID) => this._renderListSeparator(sectionID, rowID)}
@@ -159,9 +178,10 @@ class DashBoardView extends Component {
     }
 
     _renderSectionHeader(sectionData,sectionID) {
+      console.log(sectionData)
         return (
-            <View style={{width:this._winWidth,height:50}}>
-                <Text>今日热闻</Text>
+            <View style={{width:this._winWidth,height:30,backgroundColor:'#1296db'}}>
+                <Text style={{color:'#fff',textAlign:'center',marginTop:5}}>{this.state.newsData[0].date}  {this.state.newsData[0].weekday}</Text>
             </View>
         )
     }
@@ -247,8 +267,7 @@ const styles = StyleSheet.create({
     slide1_text:{
         position:'absolute',
         bottom:0,
-        backgroundColor:'black',
-        opacity:0.7
+        backgroundColor:'linear-gradient(180deg,transparent,rgba(0,0,0,.7))'
     },
     text: {
         color: '#fff',
