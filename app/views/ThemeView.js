@@ -3,6 +3,7 @@ import {View,Text,StyleSheet,Image,Dimensions,ListView} from 'react-native';
 import {Header,Container,Content,Left,Body,Right,Button} from 'native-base';
 import api from '../api/_index';
 import FullScreenLoading from '../components/FullScreenLoading';
+import CommonListView from '../components/CommonListView';
 export default class ThemeView extends Component{
   static navigationOptions = {
     header:null,
@@ -21,12 +22,15 @@ export default class ThemeView extends Component{
   constructor(props){
     super(props);
     this.state = {
-      themeData:[],
+      themeData:null,
       isHttpRequesting:false
     }
   }
 
   componentDidMount(){
+    this.setState({
+      isHttpRequesting:true
+    });
     this._requestThemesData();
   }
 
@@ -34,14 +38,18 @@ export default class ThemeView extends Component{
   _requestThemesData(){
     api.getTopicsById(13).then((data) => {
       if(data.data !== null && data.data.stories.length !== 0){
+        for(let item of data.data.stories){
+          if(typeof item.images === 'undefined'){
+            item.images = null;
+          }
+        }
         this.setState({
-          themesData:data.data.stories
+          themesData:data.data,
+          isHttpRequesting:false
         })
       }
-    },() => {
-      console.log('Api goes wrong');
-    })
-  }
+  })
+}
 
   //views
 
@@ -54,13 +62,12 @@ export default class ThemeView extends Component{
                 <Image style={styles.icon} source={require('../assets/menu.png')}/>
               </Button>
             </Left>
-            <Body><Text>ThemeView</Text></Body>
+            <Body><Text>日常心里学</Text></Body>
             <Right></Right>
           </Header>
+          {this.state.themesData != null ? null : this._renderFullLoadingView()}
           <Content>
-            <View>
-              <Text>this is the themeview!</Text>
-            </View>
+            {this.state.themesData != null ? <CommonListView data={this.state.themesData} navigation={this.props.navigation}/> : null}
           </Content>
         </Container>
       )

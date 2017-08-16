@@ -55,7 +55,7 @@ class DashBoardView extends Component {
                 isHttpRequesting: false,
                 newsList:this.state.newsList.cloneWithRows(_data[0].stories)
             });
-            console.log(this.state.newsData);
+            // console.log(this.state.newsData);
           }
         }).catch((error) => {
             this.setState({
@@ -71,7 +71,7 @@ class DashBoardView extends Component {
         this.setState({
           themesData:data.data.others
         });
-        console.log(this.state.themesData);
+        // console.log(this.state.themesData);
         }
       })
     }
@@ -178,7 +178,6 @@ class DashBoardView extends Component {
     }
 
     _renderSectionHeader(sectionData,sectionID) {
-      console.log(sectionData)
         return (
             <View style={{width:this._winWidth,height:30,backgroundColor:'#1296db'}}>
                 <Text style={{color:'#fff',textAlign:'center',marginTop:5}}>{this.state.newsData[0].date}  {this.state.newsData[0].weekday}</Text>

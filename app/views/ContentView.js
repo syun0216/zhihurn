@@ -15,7 +15,7 @@ import {
 import api from '../api/_index';
 import FullLoadingScreen from '../components/FullScreenLoading';
 import HTMLView from 'react-native-htmlview';
-import CommonCss from '../components/CommonCss'
+import CommonCss from '../components/CommonCss';
 _winWidth = Dimensions.get('window').width;
 _winHeight = Dimensions.get('window').height;
 export default class ContentView extends Component {
@@ -126,7 +126,7 @@ export default class ContentView extends Component {
           <WebView bounces={false}
                 scalesPageToFit={true}
                 source={{html:this.state.newsContent.html}}
-                style={{width:this._winWidth, height:this._winHeight}}>
+                style={{width:_winWidth, height:_winHeight}}>
               </WebView>
           {/* <HTMLView value={this.state.newsContent.html}/> */}
         </Content>
