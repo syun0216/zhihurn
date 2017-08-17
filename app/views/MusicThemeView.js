@@ -4,10 +4,10 @@ import {Header,Container,Content,Left,Body,Right,Button} from 'native-base';
 import api from '../api/_index';
 import FullScreenLoading from '../components/FullScreenLoading';
 import CommonListView from '../components/CommonListView';
-export default class ThemeView extends Component{
+export default class DailyThemeView extends Component{
   static navigationOptions = {
     header:null,
-    drawerLabel: '日常心理学',
+    drawerLabel: '音乐日报',
    drawerIcon: () => (
      <View>
            <Image
@@ -36,7 +36,7 @@ export default class ThemeView extends Component{
 
   //requests
   _requestThemesData(){
-    api.getTopicsById(13).then((data) => {
+    api.getTopicsById(7).then((data) => {
       if(data.data !== null && data.data.stories.length !== 0){
         for(let item of data.data.stories){
           if(typeof item.images === 'undefined'){
@@ -62,7 +62,7 @@ export default class ThemeView extends Component{
                 <Image style={styles.icon} source={require('../assets/menu.png')}/>
               </Button>
             </Left>
-            <Body><Text>日常心里学</Text></Body>
+            <Body><Text>音乐日报</Text></Body>
             <Right></Right>
           </Header>
           {this.state.themesData != null ? null : this._renderFullLoadingView()}
@@ -75,14 +75,6 @@ export default class ThemeView extends Component{
 
     _renderFullLoadingView(){
       return <FullScreenLoading message="正在加载中..."/>
-    }
-
-    _renderThemeMainView(){
-      return (
-        <FlatList
-
-        />
-      )
     }
 }
 

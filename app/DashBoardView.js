@@ -5,7 +5,18 @@ import {StackNavigator, TabNavigator,DrawerNavigator,DrawerItems} from 'react-na
 import Swiper from 'react-native-swiper';
 import FullScreenLoading from './components/FullScreenLoading';
 import api from './api/_index';
-import ThemeView from './views/ThemeView';
+import DailyThemeView from './views/DailyThemeView';
+import RecommendThemeView from './views/RecommendThemeView';
+import MovieThemeView from './views/MovieThemeView';
+import BoringThemeView from './views/BoringThemeView';
+import DesignThemeView from './views/DesignThemeView';
+import CompanyThemeView from './views/CompanyThemeView';
+import FinanceThemeView from './views/FinanceThemeView';
+import InternetThemeView from './views/InternetThemeView';
+import GameThemeView from './views/GameThemeView';
+import MusicThemeView from './views/MusicThemeView';
+import ComicThemeView from './views/ComicThemeView';
+import PEThemeView from './views/PEThemeView';
 import ContentView from './views/ContentView';
 import OpeningView from './OpeningView';
 
@@ -195,12 +206,42 @@ const DashDrawerPage = DrawerNavigator({
     Home: {
         screen: mainView,
     },
+    Comic:{
+      screen:ComicThemeView
+    },
+    Music:{
+      screen:MusicThemeView
+    },
+    Game:{
+      screen:GameThemeView
+    },
+    Movie:{
+      screen:MovieThemeView
+    },
+    Recommeng:{
+      screen:RecommendThemeView
+    },
     Theme: {
-         screen: ThemeView,
+         screen: DailyThemeView,
     },
-    Theme1: {
-         screen: ThemeView,
+    Boring:{
+      screen:BoringThemeView
     },
+    Design:{
+      screen:DesignThemeView
+    },
+    Company:{
+      screen:CompanyThemeView
+    },
+    Finance:{
+      screen:FinanceThemeView
+    },
+    Internet:{
+      screen:InternetThemeView
+    },
+    PE:{
+      screen:PEThemeView
+    }
 },{
     drawerWidth: 200, // 抽屉宽
     drawerPosition: 'left', // 抽屉在左边还是右边

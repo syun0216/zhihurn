@@ -46,7 +46,7 @@ export default class CommonListView extends Component{
             style={{backgroundColor: Colors.TRANSPARENT}}
             refreshing={this.state.refreshing}
             onRefresh={() => this._onRefreshToRequestFirstPageData()}
-        /> : null
+        /> : null;
       return (
         <ListView
           initialListSize={10}
@@ -65,14 +65,10 @@ export default class CommonListView extends Component{
     return (
       <ListItem style={{paddingTop:10,paddingBottom:10}}
         onPress={() => this.props.navigation.navigate('Content',{id:rowData.id,title:rowData.title})}>
-        <Left>
-          {rowData.images !== null ? <Thumbnail square size={50} source={{uri:rowData.images[0]}}></Thumbnail> : null}
-          <Text style={{borderWidth:0}}>{rowData.title.split("").length > 18 ? rowData.title.substr(0,18) + '...' : rowData.title}</Text>
-        </Left>
-        <Body>
-
-        </Body>
-        <Right></Right>
+        {rowData.images !== null ?
+           <Thumbnail square size={50} source={{uri:rowData.images[0]}}></Thumbnail>
+         : null}
+          <Text style={{borderWidth:0,marginLeft:5}}>{rowData.title.split("").length > 18 ? rowData.title.substr(0,18) + '...' : rowData.title}</Text>
       </ListItem>
     )
   }
@@ -82,7 +78,7 @@ export default class CommonListView extends Component{
       <View style={styles.titleImg}>
         <Image style={{width:_winWidth,height:200}} source={{uri:this.props.data.image}}/>
         <View style={styles.titleView}>
-          <Text style={styles.titleText}>{this.props.data.name}</Text>
+          <Text style={[styles.titleText,{marginBottom:3}]}>{this.props.data.name}</Text>
           <Text style={styles.titleText}>{this.props.data.description}</Text>
         </View>
       </View>
@@ -96,8 +92,8 @@ export default class CommonListView extends Component{
           {
             this.props.data.editors.map((item,idx) => {
               return (
-                <View key={`${idx}`} style={{marginLeft:5}}>
-                    <Image style={{width:20,height:20,}} source={{uri:item.avatar}} />
+                <View key={`${idx}`} style={{marginLeft:10,marginTop:-3}}>
+                    <Image style={{width:20,height:20,borderRadius:10}} source={{uri:item.avatar}} />
                 </View>
               )
             })
