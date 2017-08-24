@@ -32,13 +32,15 @@ export default class ContentView extends Component {
     this.state = {
       isHttpRequesting: false,
       newsContent: null,
-      favoriteChecked:false
+      favoriteChecked:false,
+      commentsCount:0
     };
   }
 
   componentDidMount() {
     this.setState({isHttpRequesting: true});
     this._requestNewsContent();
+    this._requestComments();
   }
 
 
@@ -46,6 +48,14 @@ export default class ContentView extends Component {
     return this.state.newsContent === null
       ? this._renderFullLoadingView()
       : this._renderMainContentView();
+  }
+
+  _requestComments(){
+    api.getCommentsById(this.props.navigation.state.params.id).then((data) => {
+      console.log(data);
+    }).catch(() => {
+      console.log('api goes wrong');
+    })
   }
 
   _requestNewsContent() {
@@ -142,7 +152,9 @@ export default class ContentView extends Component {
           <Button transparent style={styles.bottomButton} onPress={() => this.addNewsToFavorite()}>
             {this.state.favoriteChecked ? <MaterialIcons name='favorite' style={{fontSize:20,color:'#ff5858'}}/> : <MaterialIcons name="favorite-border" style={[styles.IconStyle,{fontSize:20}]}/>}
           </Button>
-          <Button transparent style={styles.bottomButton}><MaterialCommunityIcons name="comment-processing-outline" style={[styles.IconStyle,{fontSize:18}]}/></Button>
+          <Button transparent style={styles.bottomButton} onPress={() => this.props.navigation.navigate('Comment',{id:this.props.navigation.state.params.id})}>
+            <MaterialCommunityIcons name="comment-processing-outline" style={[styles.IconStyle,{fontSize:18}]}/>
+          </Button>
           {/* <Left>
             <Button transparent onPress={() => this.props.navigation.goBack()}>
               <Icon name='arrow-back'/>

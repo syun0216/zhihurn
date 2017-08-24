@@ -18,6 +18,7 @@ import MusicThemeView from './views/MusicThemeView';
 import ComicThemeView from './views/ComicThemeView';
 import PEThemeView from './views/PEThemeView';
 import ContentView from './views/ContentView';
+import CommentView from './views/CommentView';
 import OpeningView from './OpeningView';
 
 import ToastUtil from './utils/ToastUtil';
@@ -271,7 +272,8 @@ class DashBoardView extends Component {
  let mainView = StackNavigator({
    Home: {screen: OpeningView},
    Dash:{screen:DashBoardView},
-   Content: {screen: ContentView}
+   Content: {screen: ContentView},
+   Comment:{screen:CommentView}
  });
 
 const DashDrawerPage = DrawerNavigator({
