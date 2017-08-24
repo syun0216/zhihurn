@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, Text,WebView,Dimensions,Image} from 'react-native';
+import {View, Text,WebView,Dimensions,Image,StyleSheet} from 'react-native';
 import {
   Container,
   Header,
@@ -16,6 +16,10 @@ import api from '../api/_index';
 import FullLoadingScreen from '../components/FullScreenLoading';
 import HTMLView from 'react-native-htmlview';
 import CommonCss from '../components/CommonCss';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import ToastUtil from '../utils/ToastUtil';
+
 _winWidth = Dimensions.get('window').width;
 _winHeight = Dimensions.get('window').height;
 export default class ContentView extends Component {
@@ -27,7 +31,8 @@ export default class ContentView extends Component {
     // 初始状态
     this.state = {
       isHttpRequesting: false,
-      newsContent: null
+      newsContent: null,
+      favoriteChecked:false
     };
   }
 
@@ -36,8 +41,8 @@ export default class ContentView extends Component {
     this._requestNewsContent();
   }
 
-  render() {
 
+  render(){
     return this.state.newsContent === null
       ? this._renderFullLoadingView()
       : this._renderMainContentView();
@@ -110,7 +115,7 @@ export default class ContentView extends Component {
     const navigation = this.props.navigation;
     return (
       <Container>
-        <Header>
+        {/* <Header>
           <Left>
             <Button transparent onPress={() => this.props.navigation.goBack()}>
               <Icon name='arrow-back'/>
@@ -120,7 +125,7 @@ export default class ContentView extends Component {
             <Title>{navigation.state.params.title}</Title>
           </Body>
           <Right/>
-        </Header>
+        </Header> */}
 
         <Content>
           <WebView bounces={false}
@@ -130,8 +135,52 @@ export default class ContentView extends Component {
               </WebView>
           {/* <HTMLView value={this.state.newsContent.html}/> */}
         </Content>
+        <Footer style={{backgroundColor:'white',}}>
+          <Button transparent style={styles.bottomButton} onPress={() => this.props.navigation.goBack()}><Icon name='arrow-back' style={{color:'#959595'}}/></Button>
+          <Button transparent style={styles.bottomButton}><MaterialCommunityIcons name="chevron-double-down" style={[styles.IconStyle,{fontSize:22}]}/></Button>
+          <Button transparent style={styles.bottomButton}><MaterialCommunityIcons name="share-variant" style={[styles.IconStyle,{fontSize:18}]}/></Button>
+          <Button transparent style={styles.bottomButton} onPress={() => this.addNewsToFavorite()}>
+            {this.state.favoriteChecked ? <MaterialIcons name='favorite' style={{fontSize:20,color:'#ff5858'}}/> : <MaterialIcons name="favorite-border" style={[styles.IconStyle,{fontSize:20}]}/>}
+          </Button>
+          <Button transparent style={styles.bottomButton}><MaterialCommunityIcons name="comment-processing-outline" style={[styles.IconStyle,{fontSize:18}]}/></Button>
+          {/* <Left>
+            <Button transparent onPress={() => this.props.navigation.goBack()}>
+              <Icon name='arrow-back'/>
+            </Button>
+          </Left>
+          <Body>
+            <Title>{navigation.state.params.title}</Title>
+          </Body>
+          <Right/> */}
+        </Footer>
       </Container>
     );
   }
 
+  //commonFunction
+  addNewsToFavorite(){
+    if(!this.state.favoriteChecked){
+      this.setState({
+        favoriteChecked:true
+      });
+      ToastUtil.show('收藏成功',1000,'top','success');
+    }
+    else{
+      this.setState({
+        favoriteChecked:false
+      });
+      ToastUtil.show('取消收藏',1000,'top','warning');
+    }
+  }
+
 }
+const styles = StyleSheet.create({
+  bottomButton:{
+    flex:1,
+    marginTop:5
+  },
+  IconStyle:{
+    color:"#959595",
+    // fontSize:18
+  }
+});

@@ -79,14 +79,14 @@ class DashBoardView extends Component {
                 newsList:this.state.newsList.cloneWithRows(_data[0].stories),
             });
             console.log(data.data);
-            ToastUtil.show('加载成功',1000);
+            ToastUtil.show('加载成功',1000,'bottom');
             // console.log(this.state.newsData);
           }
         }).catch((error) => {
             this.setState({
                 isHttpRequesting: false,
             });
-            ToastUtil.show('加载失败',1000);
+            ToastUtil.show('加载失败',1000,'bottom','danger');
             console.log("Api call error");
         });
     }

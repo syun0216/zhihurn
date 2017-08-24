@@ -4,15 +4,16 @@ import {ListItem,Body,Left,Right,Thumbnail,Button,Container} from 'native-base';
 _winWidth = Dimensions.get('window').width;
 _windHeight = Dimensions.get('window').height;
 export default class CommonListView extends Component{
-  // static propTypes = {
-  //    refreshable:React.PropTypes.bool,
-  //   //  renderRow: React.PropTypes.func,
-  //   //  renderSeparator: React.PropTypes.func,
-  //   //  renderFooter: React.PropTypes.func,
-  //    requestingFunc:React.PropTypes.func,
-  //    data:React.PropTypes.object.isRequired,
-  //    navigation:React.PropTypes.object.isRequired
-  // };
+  static propTypes = {
+    //  refreshable:React.PropTypes.bool,
+    //  renderRow: React.PropTypes.func,
+    //  renderSeparator: React.PropTypes.func,
+    //  renderFooter: React.PropTypes.func,
+    //  requestingFunc:React.PropTypes.func,
+    //  data:React.PropTypes.object.isRequired,
+     navigation:React.PropTypes.object.isRequired,
+        // renderRow:React.PropTypes.func.isRequired
+  };
   _refreshable = false;
   _isEnd = true;
   constructor(props){
@@ -62,6 +63,9 @@ export default class CommonListView extends Component{
   }
 
   _renderListItemView(rowData){
+    // if(this.props.renderRow !== null){
+    //   return this.props.renderRow(rowData);
+    // }
     return (
       <ListItem style={{paddingTop:10,paddingBottom:10}}
         onPress={() => this.props.navigation.navigate('Content',{id:rowData.id,title:rowData.title})}>
