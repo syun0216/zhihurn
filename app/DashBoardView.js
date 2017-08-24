@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-import {View, StyleSheet,ScrollView, StatusBar, Image, Platform, Dimensions, ListView} from 'react-native';
-import {Container, Header, Content, Button, Icon, Text,ListItem, Left, Body, Right, Thumbnail,} from 'native-base';
+import {View, StyleSheet,ScrollView, StatusBar, Image, Platform, Dimensions, ListView,TouchableOpacity} from 'react-native';
+import {Container, Header, Content, Button, Icon, Text,ListItem, Left, Body, Right, Thumbnail,Toast,Root} from 'native-base';
 import {StackNavigator, TabNavigator,DrawerNavigator,DrawerItems} from 'react-navigation';
 import Swiper from 'react-native-swiper';
 import FullScreenLoading from './components/FullScreenLoading';
@@ -20,7 +20,18 @@ import PEThemeView from './views/PEThemeView';
 import ContentView from './views/ContentView';
 import OpeningView from './OpeningView';
 
+import ToastUtil from './utils/ToastUtil';
+import FooterUtil from './utils/FooterUtil';
+const LOADING=0;
+const LOAD_SUCCESS = 1;
+const LOAD_FAILED = 2;
+
+let day_count = 1;
+let list_data = [];
+const _winWidth = Dimensions.get('window').width;
+const _winHeight = Dimensions.get('window').height;
 class DashBoardView extends Component {
+  _scrollView = null;
     static navigationOptions = {
       header:null,
       drawerLabel: '主页',
@@ -31,7 +42,7 @@ class DashBoardView extends Component {
         />
       ),
     };
-    _winWidth = Dimensions.get('window').width;
+
 
     constructor(props) {
         super(props);
@@ -40,7 +51,8 @@ class DashBoardView extends Component {
             newsData: [],
             themesData:[],
             isHttpRequesting: false,
-            newsList: ds.cloneWithRows([])
+            newsList: ds.cloneWithRows([]),
+            requestStatus:null
         }
     }
 
@@ -49,7 +61,6 @@ class DashBoardView extends Component {
             isHttpRequesting: true
         });
         this._requestNewsData();
-        this._requestThemesData();
     }
 
 //requests
@@ -61,31 +72,57 @@ class DashBoardView extends Component {
             data.data.date.substring(6,8);
             let _data = [];
             _data.push(data.data);
+            list_data = _data[0].stories;
             this.setState({
                 newsData: _data,
                 isHttpRequesting: false,
-                newsList:this.state.newsList.cloneWithRows(_data[0].stories)
+                newsList:this.state.newsList.cloneWithRows(_data[0].stories),
             });
+            console.log(data.data);
+            ToastUtil.show('加载成功',1000);
             // console.log(this.state.newsData);
           }
         }).catch((error) => {
             this.setState({
                 isHttpRequesting: false,
             });
+            ToastUtil.show('加载失败',1000);
             console.log("Api call error");
         });
     }
 
-    _requestThemesData(){
-      api.getTopics().then((data) => {
-        if(data.data != null && data.data.others.length > 0){
-        this.setState({
-          themesData:data.data.others
-        });
-        // console.log(this.state.themesData);
-        }
-      })
-    }
+    // _requestThemesData(){
+    //   api.getTopics().then((data) => {
+    //     if(data.data != null && data.data.others.length > 0){
+    //     this.setState({
+    //       themesData:data.data.others
+    //     });
+    //     // console.log(this.state.themesData);
+    //     }
+    //   })
+    // }
+
+    // _requestNextNewsData(){
+    //   this.setState({requestStatus:LOADING});
+    //   api.getNewsByDate(this.getDate(day_count)).then((data) => {
+    //     if(data.data !== null && data.data.stories.length !== 0){
+    //       // list_data.push(data.data.stories);
+    //       list_data.concat(data.data.stories);
+    //       this.setState({
+    //           // newsData: this.state.newsData.push(data.data),
+    //           requestStatus:LOAD_SUCCESS,
+    //           // newsList:this.state.newsList.cloneWithRows(list_data),
+    //       });
+    //     }
+    //     console.log(data);
+    //   }).catch((error) => {
+    //     this.setState({
+    //       requestStatus:LOAD_FAILED
+    //     });
+    //     console.log("Api goes wrong");
+    //   })
+    // }
+
 
 //common functions
   setWeekDay(date){
@@ -101,21 +138,35 @@ class DashBoardView extends Component {
     }
   }
 
+  getDate(count) {
+    let _date = new Date();
+    _date.setDate(_date.getDate() + 1 - count);
+    let _year = _date.getFullYear();
+    let _month = (_date.getMonth() + 1) < 10 ? "0" + (_date.getMonth() + 1) : _date.getDate() + 1;
+    let _day = (_date.getDate() + 1) < 10 ? "0" + (_date.getDate() + 1) : _date.getDate() + 1;
+    return [_year, _month, _day].join("");
+  }
+
+
 //views
     render() {
         return (
             <Container>
-              <Header>
+              <Header style={{backgroundColor:'transparent'}}>
                 <Left>
                   <Button transparent onPress={() => this.props.navigation.navigate('DrawerOpen',{id:1})}>
                     <Image style={{width:24,height:24}} source={require('./assets/menu.png')} />
                   </Button>
                 </Left>
                 <Body><Text style={{fontSize:16}}>今日热闻</Text></Body>
-                <Right></Right>
+                <Right>
+                  <TouchableOpacity onPress={() => {
+                    this._scrollView.scrollTo({y:0,animated:false});
+                }}><View><Text>scroll to top</Text></View></TouchableOpacity>
+                  </Right>
               </Header>
               {this.state.isHttpRequesting ? this._renderLoadingView() : null}
-              <Content>
+              <Content >
                 {this.state.newsData.length === 0 ? null : this._renderNewsListView()}
               </Content>
             </Container>
@@ -129,15 +180,22 @@ class DashBoardView extends Component {
     _renderNewsListView() {
 
         return <ListView
+            ref={(scrollView) => { this._scrollView = scrollView; }}
             initialListSize={10}
             pageSize={10}
             dataSource={this.state.newsList}
             renderSectionHeader={(sectionData,sectionID) => this._renderSectionHeader(sectionData,sectionID)}
             renderRow={(rowData) => this._renderNewsItem(rowData)}
             renderHeader={() => this._swiperView()}
+            renderFooter={() => this._renderFooter()}
+            // onEndReached={() => this._requestNextNewsData()}
+            // onEndReachedThreshold={10}
+            // scrollRenderAheadDistance={50}
             // renderSeparator={(sectionID, rowID) => this._renderListSeparator(sectionID, rowID)}
         />
     }
+
+
 
     _renderNewsItem(rowData){
         return (
@@ -170,8 +228,8 @@ class DashBoardView extends Component {
                     return (
                       <Button transparent style={styles.slide1} key={`${index}`}  onPress={() => this.props.navigation.navigate('Content',{id:item.id,title:item.title})}>
                         <View>
-                            <Image style={{width: this._winWidth, height: 200}} source={{uri: `${item.image}`}}/>
-                            <View style={[styles.slide1_text,{width:this._winWidth,height:50,display:'flex',justifyContent:'center',alignItems:'center'}]}><Text style={{color:'white'}}>{item.title}</Text></View>
+                            <Image style={{width: _winWidth, height: 200}} source={{uri: `${item.image}`}}/>
+                            <View style={[styles.slide1_text,{width:_winWidth,height:50,display:'flex',justifyContent:'center',alignItems:'center'}]}><Text style={{color:'white'}}>{item.title}</Text></View>
                         </View>
                       </Button>
                     )
@@ -194,6 +252,20 @@ class DashBoardView extends Component {
                 <Text style={{color:'#fff',textAlign:'center',marginTop:5}}>{this.state.newsData[0].date}  {this.state.newsData[0].weekday}</Text>
             </View>
         )
+    }
+
+    _renderFooter(){
+      // return <FooterUtil isLoading={true} message="正在加载中..." />;
+      switch(this.state.requestStatus){
+        case LOADING:
+          return <FooterUtil isLoading={true} message="正在加载中..." />;break;
+        case LOAD_SUCCESS:
+          return null;
+        case LOAD_FAILED:
+          return <FooterUtil message="加载失败,请点击重试" callback={() => this._requestNextNewsData()} />;break;
+        default:
+            return null;break;
+      }
     }
 }
  let mainView = StackNavigator({
@@ -245,6 +317,7 @@ const DashDrawerPage = DrawerNavigator({
 },{
     drawerWidth: 200, // 抽屉宽
     drawerPosition: 'left', // 抽屉在左边还是右边
+    cardStack: { gesturesEnabled: false, },
     // contentComponent: CustomDrawerContentComponent,  // 自定义抽屉组件
     contentOptions: {
       initialRouteName: 'Home', // 默认页面组件

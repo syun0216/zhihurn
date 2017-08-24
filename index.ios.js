@@ -11,16 +11,18 @@ import {
   Text,
   View
 } from 'react-native';
+import {Root} from 'native-base'
 import DashBoardView from './app/DashBoardView';
-import OpeningView from './app/OpeningView';
 
-// export default class zhihurn extends Component {
-//   render() {
-//     return (
-//         <OpeningView/>
-//     );
-//   }
-// }
+export default class zhihurn extends Component {
+  render() {
+    return (
+      <Root>
+        <DashBoardView/>
+      </Root>
+    );
+  }
+}
 
-let zhihurn = DashBoardView;
+// let zhihurn = DashBoardView;
 AppRegistry.registerComponent('zhihurn', () => zhihurn);
