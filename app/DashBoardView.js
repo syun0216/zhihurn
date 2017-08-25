@@ -1,9 +1,35 @@
 import React, {Component} from 'react';
-import {View, StyleSheet,ScrollView, StatusBar, Image, Platform, Dimensions, ListView,TouchableOpacity} from 'react-native';
-import {Container, Header, Content, Button, Icon, Text,ListItem, Left, Body, Right, Thumbnail,Toast,Root} from 'native-base';
-import {StackNavigator, TabNavigator,DrawerNavigator,DrawerItems} from 'react-navigation';
+import {
+    View,
+    StyleSheet,
+    ScrollView,
+    StatusBar,
+    Image,
+    Platform,
+    Dimensions,
+    ListView,
+    TouchableOpacity
+} from 'react-native';
+import {FontAwesome} from 'react-native-vector-icons/FontAwesome';
+import {
+    Container,
+    Header,
+    Content,
+    Button,
+    Icon,
+    Text,
+    ListItem,
+    Left,
+    Body,
+    Right,
+    Thumbnail,
+    Toast,
+    Root
+} from 'native-base';
+import {StackNavigator, TabNavigator, DrawerNavigator, DrawerItems} from 'react-navigation';
 import Swiper from 'react-native-swiper';
 import FullScreenLoading from './components/FullScreenLoading';
+import NewStatusBar from './components/NewStatusBar';
 import api from './api/_index';
 import DailyThemeView from './views/DailyThemeView';
 import RecommendThemeView from './views/RecommendThemeView';
@@ -23,7 +49,8 @@ import OpeningView from './OpeningView';
 
 import ToastUtil from './utils/ToastUtil';
 import FooterUtil from './utils/FooterUtil';
-const LOADING=0;
+
+const LOADING = 0;
 const LOAD_SUCCESS = 1;
 const LOAD_FAILED = 2;
 
@@ -31,17 +58,19 @@ let day_count = 1;
 let list_data = [];
 const _winWidth = Dimensions.get('window').width;
 const _winHeight = Dimensions.get('window').height;
+
 class DashBoardView extends Component {
-  _scrollView = null;
+    _scrollView = null;
     static navigationOptions = {
-      header:null,
-      drawerLabel: '主页',
-      drawerIcon: ({ tintColor }) => (
-        <Image
-          source={require('./assets/menu.png')}
-          style={[styles.icon, {tintColor: tintColor}]}
-        />
-      ),
+        header: null,
+        drawerLabel: '主页',
+        drawerIcon: ({tintColor}) => (
+            // <FontAwesome name="home" style={[styels.icon,{tintColor:tin}]}/>
+            <Image
+                source={require('./assets/menu.png')}
+                style={[styles.icon, {tintColor: tintColor}]}
+            />
+        ),
     };
 
 
@@ -50,10 +79,10 @@ class DashBoardView extends Component {
         let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
             newsData: [],
-            themesData:[],
+            themesData: [],
             isHttpRequesting: false,
             newsList: ds.cloneWithRows([]),
-            requestStatus:null
+            requestStatus: null
         }
     }
 
@@ -67,27 +96,27 @@ class DashBoardView extends Component {
 //requests
     _requestNewsData() {
         api.getNews().then((data) => {
-          if(data.data != null){
-            data.data.date = data.data.date.substring(0,4)+"/"+data.data.date.substring(4,6)+"/"+data.data.date.substring(6, 8);
-            data.data.weekday = this.setWeekDay(data.data.date);
-            data.data.date.substring(6,8);
-            let _data = [];
-            _data.push(data.data);
-            list_data = _data[0].stories;
-            this.setState({
-                newsData: _data,
-                isHttpRequesting: false,
-                newsList:this.state.newsList.cloneWithRows(_data[0].stories),
-            });
-            console.log(data.data);
-            ToastUtil.show('加载成功',1000,'bottom');
-            // console.log(this.state.newsData);
-          }
+            if (data.data != null) {
+                data.data.date = data.data.date.substring(0, 4) + "/" + data.data.date.substring(4, 6) + "/" + data.data.date.substring(6, 8);
+                data.data.weekday = this.setWeekDay(data.data.date);
+                data.data.date.substring(6, 8);
+                let _data = [];
+                _data.push(data.data);
+                list_data = _data[0].stories;
+                this.setState({
+                    newsData: _data,
+                    isHttpRequesting: false,
+                    newsList: this.state.newsList.cloneWithRows(_data[0].stories),
+                });
+                console.log(data.data);
+                ToastUtil.show('加载成功', 1000, 'bottom');
+                // console.log(this.state.newsData);
+            }
         }).catch((error) => {
             this.setState({
                 isHttpRequesting: false,
             });
-            ToastUtil.show('加载失败',1000,'bottom','danger');
+            ToastUtil.show('加载失败', 1000, 'bottom', 'danger');
             console.log("Api call error");
         });
     }
@@ -126,50 +155,65 @@ class DashBoardView extends Component {
 
 
 //common functions
-  setWeekDay(date){
-    let _day = new Date(date).getDay();
-    switch(_day){
-      case 0 :return "星期日";break;
-      case 1 :return "星期一";break;
-      case 2 :return "星期二";break;
-      case 3 :return "星期三";break;
-      case 4 :return "星期四";break;
-      case 5 :return "星期五";break;
-      case 6 :return "星期六";break;
+    setWeekDay(date) {
+        let _day = new Date(date).getDay();
+        switch (_day) {
+            case 0 :
+                return "星期日";
+                break;
+            case 1 :
+                return "星期一";
+                break;
+            case 2 :
+                return "星期二";
+                break;
+            case 3 :
+                return "星期三";
+                break;
+            case 4 :
+                return "星期四";
+                break;
+            case 5 :
+                return "星期五";
+                break;
+            case 6 :
+                return "星期六";
+                break;
+        }
     }
-  }
 
-  getDate(count) {
-    let _date = new Date();
-    _date.setDate(_date.getDate() + 1 - count);
-    let _year = _date.getFullYear();
-    let _month = (_date.getMonth() + 1) < 10 ? "0" + (_date.getMonth() + 1) : _date.getDate() + 1;
-    let _day = (_date.getDate() + 1) < 10 ? "0" + (_date.getDate() + 1) : _date.getDate() + 1;
-    return [_year, _month, _day].join("");
-  }
+    getDate(count) {
+        let _date = new Date();
+        _date.setDate(_date.getDate() + 1 - count);
+        let _year = _date.getFullYear();
+        let _month = (_date.getMonth() + 1) < 10 ? "0" + (_date.getMonth() + 1) : _date.getDate() + 1;
+        let _day = (_date.getDate() + 1) < 10 ? "0" + (_date.getDate() + 1) : _date.getDate() + 1;
+        return [_year, _month, _day].join("");
+    }
 
 
 //views
     render() {
         return (
             <Container>
-              <Header style={{backgroundColor:'transparent'}}>
-                <Left>
-                  <Button transparent onPress={() => this.props.navigation.navigate('DrawerOpen',{id:1})}>
-                    <Image style={{width:24,height:24}} source={require('./assets/menu.png')} />
-                  </Button>
-                </Left>
-                <Body><Text style={{fontSize:16}}>今日热闻</Text></Body>
-                <Right>
-                  <TouchableOpacity onPress={() => {
-                    this._scrollView.scrollTo({y:0,animated:false});
-                }}><View><Text>scroll to top</Text></View></TouchableOpacity>
-                  </Right>
-              </Header>
-              {this.state.isHttpRequesting ? this._renderLoadingView() : null}
-              <Content >
-                {this.state.newsData.length === 0 ? null : this._renderNewsListView()}
-              </Content>
+                <NewStatusBar networkVisible={this.state.isHttpRequesting}/>
+                <Header backgroundColor="transparent" searchBar={true}>
+                    <Left>
+                        <Button transparent onPress={() => this.props.navigation.navigate('DrawerOpen', {id: 1})}>
+                            <Image style={{width: 24, height: 24}} source={require('./assets/menu.png')}/>
+                        </Button>
+                    </Left>
+                    <Body><Text style={{fontSize: 16}}>今日热闻</Text></Body>
+                    <Right>
+                        <TouchableOpacity onPress={() => {
+                            this._scrollView.scrollTo({y: 0, animated: false});
+                        }}><View><Text>scroll to top</Text></View></TouchableOpacity>
+                    </Right>
+                </Header>
+                {this.state.isHttpRequesting ? this._renderLoadingView() : null}
+                <Content>
+                    {this.state.newsData.length === 0 ? null : this._renderNewsListView()}
+                </Content>
             </Container>
         );
     }
@@ -181,11 +225,13 @@ class DashBoardView extends Component {
     _renderNewsListView() {
 
         return <ListView
-            ref={(scrollView) => { this._scrollView = scrollView; }}
+            ref={(scrollView) => {
+                this._scrollView = scrollView;
+            }}
             initialListSize={10}
             pageSize={10}
             dataSource={this.state.newsList}
-            renderSectionHeader={(sectionData,sectionID) => this._renderSectionHeader(sectionData,sectionID)}
+            renderSectionHeader={(sectionData, sectionID) => this._renderSectionHeader(sectionData, sectionID)}
             renderRow={(rowData) => this._renderNewsItem(rowData)}
             renderHeader={() => this._swiperView()}
             renderFooter={() => this._renderFooter()}
@@ -197,14 +243,14 @@ class DashBoardView extends Component {
     }
 
 
-
-    _renderNewsItem(rowData){
+    _renderNewsItem(rowData) {
         return (
-            <ListItem  style={{paddingTop:10,paddingBottom:10}}
-                      onPress={()=>this.props.navigation.navigate('Content',{id:rowData.id,title:rowData.title})}>
+            <ListItem style={{paddingTop: 10, paddingBottom: 10}}
+                      onPress={() => this.props.navigation.navigate('Content', {id: rowData.id, title: rowData.title})}>
                 <Left>
-                    <Thumbnail square size={50} source={{ uri: rowData.images[0] }} />
-                    <Text style={{borderWidth:0}}>{rowData.title.split("").length > 18 ? rowData.title.substr(0,18) + '...' : rowData.title}</Text>
+                    <Thumbnail square size={50} source={{uri: rowData.images[0]}}/>
+                    <Text
+                        style={{borderWidth: 0}}>{rowData.title.split("").length > 18 ? rowData.title.substr(0, 18) + '...' : rowData.title}</Text>
                 </Left>
                 {/* <Body><Text>123</Text></Body> */}
                 <Right></Right>
@@ -212,12 +258,13 @@ class DashBoardView extends Component {
         )
     }
 
-    _renderOpenDrawButton(){
-      return (
-        <Button style={{position:'absolute',top:10,left:10,zIndex:999}} transparent onPress={() => this.props.navigation.navigate('DrawerOpen')}>
-          <Image style={{width:24,height:24}} source={require('./assets/menu.png')} />
-        </Button>
-      )
+    _renderOpenDrawButton() {
+        return (
+            <Button style={{position: 'absolute', top: 10, left: 10, zIndex: 999}} transparent
+                    onPress={() => this.props.navigation.navigate('DrawerOpen')}>
+                <Image style={{width: 24, height: 24}} source={require('./assets/menu.png')}/>
+            </Button>
+        )
     }
 
     _swiperView() {
@@ -227,133 +274,167 @@ class DashBoardView extends Component {
             >
                 {this.state.newsData[0].top_stories.map((item, index) => {
                     return (
-                      <Button transparent style={styles.slide1} key={`${index}`}  onPress={() => this.props.navigation.navigate('Content',{id:item.id,title:item.title})}>
-                        <View>
-                            <Image style={{width: _winWidth, height: 200}} source={{uri: `${item.image}`}}/>
-                            <View style={[styles.slide1_text,{width:_winWidth,height:50,display:'flex',justifyContent:'center',alignItems:'center'}]}><Text style={{color:'white'}}>{item.title}</Text></View>
-                        </View>
-                      </Button>
+                        <Button transparent style={styles.slide1} key={`${index}`}
+                                onPress={() => this.props.navigation.navigate('Content', {
+                                    id: item.id,
+                                    title: item.title
+                                })}>
+                            <View>
+                                <Image style={{width: _winWidth, height: 200}} source={{uri: `${item.image}`}}/>
+                                <View style={[styles.slide1_text, {
+                                    width: _winWidth,
+                                    height: 50,
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center'
+                                }]}><Text style={{color: 'white'}}>{item.title}</Text></View>
+                            </View>
+                        </Button>
                     )
                 })}
             </Swiper>
         )
     }
 
-    _renderListSeparator(sectionID,rowID){
+    _renderListSeparator(sectionID, rowID) {
         return (
             <View key={`${sectionID}-${rowID}`}
-                  style={{height: 1,
-                      backgroundColor: '#ccc',}}/>
+                  style={{
+                      height: 1,
+                      backgroundColor: '#ccc',
+                  }}/>
         );
     }
 
-    _renderSectionHeader(sectionData,sectionID) {
+    _renderSectionHeader(sectionData, sectionID) {
         return (
-            <View style={{width:this._winWidth,height:30,backgroundColor:'#1296db'}}>
-                <Text style={{color:'#fff',textAlign:'center',marginTop:5}}>{this.state.newsData[0].date}  {this.state.newsData[0].weekday}</Text>
+            <View style={{width: this._winWidth, height: 30, backgroundColor: '#1296db'}}>
+                <Text style={{
+                    color: '#fff',
+                    textAlign: 'center',
+                    marginTop: 5
+                }}>{this.state.newsData[0].date} {this.state.newsData[0].weekday}</Text>
             </View>
         )
     }
 
-    _renderFooter(){
-      // return <FooterUtil isLoading={true} message="正在加载中..." />;
-      switch(this.state.requestStatus){
-        case LOADING:
-          return <FooterUtil isLoading={true} message="正在加载中..." />;break;
-        case LOAD_SUCCESS:
-          return null;
-        case LOAD_FAILED:
-          return <FooterUtil message="加载失败,请点击重试" callback={() => this._requestNextNewsData()} />;break;
-        default:
-            return null;break;
-      }
+    _renderFooter() {
+        // return <FooterUtil isLoading={true} message="正在加载中..." />;
+        switch (this.state.requestStatus) {
+            case LOADING:
+                return <FooterUtil isLoading={true} message="正在加载中..."/>;
+                break;
+            case LOAD_SUCCESS:
+                return null;
+            case LOAD_FAILED:
+                return <FooterUtil message="加载失败,请点击重试" callback={() => this._requestNextNewsData()}/>;
+                break;
+            default:
+                return null;
+                break;
+        }
     }
 }
- let mainView = StackNavigator({
-   Home: {screen: OpeningView},
-   Dash:{screen:DashBoardView},
-   Content: {screen: ContentView},
-   Comment:{screen:CommentView}
- });
+
+let mainView = StackNavigator({
+    Home: {screen: OpeningView},
+    Dash: {screen: DashBoardView},
+    Content: {screen: ContentView},
+    Comment: {screen: CommentView}
+});
 
 const DashDrawerPage = DrawerNavigator({
     Home: {
         screen: mainView,
     },
-    Comic:{
-      screen:ComicThemeView
+    Comic: {
+        screen: ComicThemeView
     },
-    Music:{
-      screen:MusicThemeView
+    Music: {
+        screen: MusicThemeView
     },
-    Game:{
-      screen:GameThemeView
+    Game: {
+        screen: GameThemeView
     },
-    Movie:{
-      screen:MovieThemeView
+    Movie: {
+        screen: MovieThemeView
     },
-    Recommeng:{
-      screen:RecommendThemeView
+    Recommeng: {
+        screen: RecommendThemeView
     },
     Theme: {
-         screen: DailyThemeView,
+        screen: DailyThemeView,
     },
-    Boring:{
-      screen:BoringThemeView
+    Boring: {
+        screen: BoringThemeView
     },
-    Design:{
-      screen:DesignThemeView
+    Design: {
+        screen: DesignThemeView
     },
-    Company:{
-      screen:CompanyThemeView
+    Company: {
+        screen: CompanyThemeView
     },
-    Finance:{
-      screen:FinanceThemeView
+    Finance: {
+        screen: FinanceThemeView
     },
-    Internet:{
-      screen:InternetThemeView
+    Internet: {
+        screen: InternetThemeView
     },
-    PE:{
-      screen:PEThemeView
+    PE: {
+        screen: PEThemeView
     }
-},{
+}, {
     drawerWidth: 200, // 抽屉宽
     drawerPosition: 'left', // 抽屉在左边还是右边
-    cardStack: { gesturesEnabled: false, },
+    cardStack: {gesturesEnabled: false,},
     // contentComponent: CustomDrawerContentComponent,  // 自定义抽屉组件
     contentOptions: {
-      initialRouteName: 'Home', // 默认页面组件
-      activeItemKey : 'Theme',
-      labelStyle : {//标签样式
-           // color : 'red',
-           height : 20,
-      },
-      activeTintColor: 'white',  // 选中文字颜色
-      activeBackgroundColor: '#1296db', // 选中背景颜色
-      inactiveTintColor: '#666',  // 未选中文字颜色
-      inactiveBackgroundColor: '#fff', // 未选中背景颜色
-      style: {  // 样式
-         marginVertical: 0,
-      },
-      //没有作用
-      // onItemPress : (route) => {
-      // 	 console.log('-------->' + JSON.stringify(route))
-      // },
+        initialRouteName: 'Home', // 默认页面组件
+        activeItemKey: 'Theme',
+        labelStyle: {//标签样式
+            // color : 'red',
+            height: 20,
+        },
+        activeTintColor: 'white',  // 选中文字颜色
+        activeBackgroundColor: '#1D2328', // 选中背景颜色
+        inactiveTintColor: '#95999D',  // 未选中文字颜色
+        inactiveBackgroundColor: '#242A2F', // 未选中背景颜色
+        style: {  // 样式
+            marginVertical: 0,
+        },
+        //没有作用
+        // onItemPress : (route) => {
+        // 	 console.log('-------->' + JSON.stringify(route))
+        // },
 
-   },
+    },
 
-   contentComponent: props => {
+    contentComponent: props => {
         // console.log('contentComponent');
         // console.log(props);
         return (
-            <ScrollView>
-                <View>
-                    <View style={{paddingVertical: 20, paddingHorizontal: 15, backgroundColor:'#000'}}>
-                        <Text style={{color:'#FFF'}}>菜单</Text>
+            <View style={{flex: 1, backgroundColor: '#242A2F'}}>
+                <View style={{height: 120,marginTop:30}}>
+                    <View style={{flex: 1, flexDirection: 'row'}}>
+                        <View style={{flex: 1,marginLeft:16,justifyContent:'center'}}>
+                            <Image style={{width:48,height:48}} source={require('./assets/panda.png')}/>
+                        </View>
+                        <View style={{flex: 1,justifyContent:'center'}}>
+                            <Text style={{
+                                color: '#95999D'
+                            }}>请登录</Text>
+                        </View>
                     </View>
-                    <DrawerItems {...props} />
+                    <View style={{flex:1, flexDirection:'row'}}>
+                        <View style={{flex:1,justifyContent:'center',alignItems:'center'}}><Text style={{color:'white',fontSize:18}}>123</Text></View>
+                        <View style={{flex:1,justifyContent:'center',alignItems:'center'}}><Text style={{color:'white',fontSize:18}}>123</Text></View>
+                        <View style={{flex:1,justifyContent:'center',alignItems:'center'}}><Text style={{color:'white',fontSize:18}}>123</Text></View>
+                    </View>
                 </View>
-            </ScrollView>
+                <ScrollView style={{flex: 1}}>
+                    <DrawerItems style={{flex:1}} {...props} />
+                </ScrollView>
+            </View>
         )
     },
 });
@@ -372,7 +453,7 @@ const styles = StyleSheet.create({
     slide1: {
         flex: 1,
         justifyContent: 'center',
-        position:'relative',
+        position: 'relative',
         alignItems: 'center',
         // backgroundColor: '#9DD6EB',
         height: 200,
@@ -382,18 +463,18 @@ const styles = StyleSheet.create({
         backgroundColor: '#9DD6EB',
         height: 200
     },
-    slide1_text:{
-        position:'absolute',
-        bottom:0,
-        backgroundColor:'linear-gradient(180deg,transparent,rgba(0,0,0,.7))'
+    slide1_text: {
+        position: 'absolute',
+        bottom: 0,
+        backgroundColor: 'linear-gradient(180deg,transparent,rgba(0,0,0,.7))'
     },
     text: {
         color: '#fff',
         fontSize: 30,
         fontWeight: 'bold',
     },
-    icon:{
-      width:24,
-      height:24
+    icon: {
+        width: 24,
+        height: 24
     }
 });

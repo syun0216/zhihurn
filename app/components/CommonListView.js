@@ -1,4 +1,5 @@
 import React,{Component} from 'react';
+import PropTypes from 'prop-types';
 import {ListView,RefreshControl,Text,StyleSheet,Dimensions,View,Image} from 'react-native';
 import {ListItem,Body,Left,Right,Thumbnail,Button,Container} from 'native-base';
 _winWidth = Dimensions.get('window').width;

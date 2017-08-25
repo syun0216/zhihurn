@@ -10,10 +10,12 @@ import {
   Right,
   Button,
   Icon,
-  Title
+  Title,
+  Badge
 } from 'native-base';
 import api from '../api/_index';
 import FullLoadingScreen from '../components/FullScreenLoading';
+import NewStatusBar from '../components/NewStatusBar';
 import HTMLView from 'react-native-htmlview';
 import CommonCss from '../components/CommonCss';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -45,16 +47,28 @@ export default class ContentView extends Component {
 
 
   render(){
-    return this.state.newsContent === null
-      ? this._renderFullLoadingView()
-      : this._renderMainContentView();
+    return (
+      <Container>
+        <NewStatusBar networkVisible={this.state.isHttpRequesting}/>
+        {this.state.newsContent === null ?
+        this._renderFullLoadingView() :
+        this._renderMainContentView()}
+      </Container>
+    )
   }
 
   _requestComments(){
     api.getCommentsById(this.props.navigation.state.params.id).then((data) => {
       console.log(data);
+      if(data != null && data.data != null){
+        this.setState({
+          commentsCount:data.data.comments
+        });
+      };
+      ToastUtil.show('加载成功',1000,'bottom');
     }).catch(() => {
-      console.log('api goes wrong');
+      ToastUtil.show('api goes wrong',1000);
+      // console.log('api goes wrong');
     })
   }
 
@@ -125,18 +139,6 @@ export default class ContentView extends Component {
     const navigation = this.props.navigation;
     return (
       <Container>
-        {/* <Header>
-          <Left>
-            <Button transparent onPress={() => this.props.navigation.goBack()}>
-              <Icon name='arrow-back'/>
-            </Button>
-          </Left>
-          <Body>
-            <Title>{navigation.state.params.title}</Title>
-          </Body>
-          <Right/>
-        </Header> */}
-
         <Content>
           <WebView bounces={false}
                 scalesPageToFit={true}
@@ -145,15 +147,17 @@ export default class ContentView extends Component {
               </WebView>
           {/* <HTMLView value={this.state.newsContent.html}/> */}
         </Content>
-        <Footer style={{backgroundColor:'white',}}>
+        <Footer style={{backgroundColor:'white'}}>
           <Button transparent style={styles.bottomButton} onPress={() => this.props.navigation.goBack()}><Icon name='arrow-back' style={{color:'#959595'}}/></Button>
           <Button transparent style={styles.bottomButton}><MaterialCommunityIcons name="chevron-double-down" style={[styles.IconStyle,{fontSize:22}]}/></Button>
           <Button transparent style={styles.bottomButton}><MaterialCommunityIcons name="share-variant" style={[styles.IconStyle,{fontSize:18}]}/></Button>
           <Button transparent style={styles.bottomButton} onPress={() => this.addNewsToFavorite()}>
             {this.state.favoriteChecked ? <MaterialIcons name='favorite' style={{fontSize:20,color:'#ff5858'}}/> : <MaterialIcons name="favorite-border" style={[styles.IconStyle,{fontSize:20}]}/>}
           </Button>
-          <Button transparent style={styles.bottomButton} onPress={() => this.props.navigation.navigate('Comment',{id:this.props.navigation.state.params.id})}>
+
+          <Button transparent style={[styles.bottomButton,{position:'relative'}]} onPress={() => this.props.navigation.navigate('Comment',{id:this.props.navigation.state.params.id,count:this.state.commentsCount})}>
             <MaterialCommunityIcons name="comment-processing-outline" style={[styles.IconStyle,{fontSize:18}]}/>
+            <Text style={[{position:'absolute',top:0,color:'#ff5858'},this.state.commentsCount > 10 ? {right:14} : {right:20}]}>{this.state.commentsCount}</Text>
           </Button>
           {/* <Left>
             <Button transparent onPress={() => this.props.navigation.goBack()}>

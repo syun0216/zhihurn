@@ -1,8 +1,9 @@
 import React,{Component} from 'react';
 import {Text} from 'react-native';
-import {Container,Header,Footer,Body,Content} from 'native-base';
+import {Container,Header,Footer,Body,Content,Left,Right,Button,Icon} from 'native-base';
 import api from '../api/_index';
-import FullScreenLoading from '../components/FullScreenLoading'
+import FullScreenLoading from '../components/FullScreenLoading';
+import NewStatusBar from '../components/NewStatusBar';
 export default class CommentView extends Component{
   static navigationOptions = () => ({header: null,gesturesEnabled:false});
   constructor(props){
@@ -40,9 +41,16 @@ export default class CommentView extends Component{
   render(){
     return (
       <Container>
-        <Header style={{backgroundColor:'#1e90ff'}}></Header>
+        <Header>
+          <Left><Button transparent onPress={() => this.props.navigation.goBack()}><Icon name='arrow-back' style={{fontSize:18,color:'#1e90ff'}}/></Button></Left>
+          <Body><Text style={{color:'#1e90ff',fontSize:18}}>{this.props.navigation.state.params.count}条评论</Text></Body>
+          <Right></Right>
+        </Header>
+        <NewStatusBar />
         <Content><Text>123</Text></Content>
-        <Footer></Footer>
+        <Footer style={{backgroundColor:'#959595',}}>
+
+        </Footer>
       </Container>
     )
   }
