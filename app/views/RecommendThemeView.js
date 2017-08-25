@@ -11,7 +11,7 @@ export default class RecommendThemeView extends Component{
    drawerIcon: () => (
      <View>
            <Image
-               source={require('../assets/menu.png')}
+               source={require('../assets/reco.png')}
                style={styles.icon}
            />
      </View>
@@ -56,13 +56,13 @@ export default class RecommendThemeView extends Component{
     render(){
       return (
         <Container>
-          <Header>
+          <Header style={{backgroundColor:'#1296db'}} iosBarStyle="light-content">
             <Left>
               <Button transparent onPress={() => this.props.navigation.navigate('DrawerOpen')}>
                 <Image style={styles.icon} source={require('../assets/menu.png')}/>
               </Button>
             </Left>
-            <Body><Text>用户推荐日报</Text></Body>
+            <Body><Text style={{fontSize: 18,color:'white'}}>用户推荐日报</Text></Body>
             <Right></Right>
           </Header>
           {this.state.themesData != null ? null : this._renderFullLoadingView()}

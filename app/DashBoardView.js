@@ -67,9 +67,10 @@ class DashBoardView extends Component {
         drawerIcon: ({tintColor}) => (
             // <FontAwesome name="home" style={[styels.icon,{tintColor:tin}]}/>
             <Image
-                source={require('./assets/menu.png')}
+                source={require('./assets/homebig.png')}
                 style={[styles.icon, {tintColor: tintColor}]}
             />
+
         ),
     };
 
@@ -197,17 +198,17 @@ class DashBoardView extends Component {
         return (
             <Container>
                 <NewStatusBar networkVisible={this.state.isHttpRequesting}/>
-                <Header backgroundColor="transparent" searchBar={true}>
+                <Header style={{backgroundColor:'#1296db'}} iosBarStyle="light-content">
                     <Left>
                         <Button transparent onPress={() => this.props.navigation.navigate('DrawerOpen', {id: 1})}>
                             <Image style={{width: 24, height: 24}} source={require('./assets/menu.png')}/>
                         </Button>
                     </Left>
-                    <Body><Text style={{fontSize: 16}}>今日热闻</Text></Body>
+                    <Body><Text style={{fontSize: 18,color:'white'}}>今日热闻</Text></Body>
                     <Right>
-                        <TouchableOpacity onPress={() => {
-                            this._scrollView.scrollTo({y: 0, animated: false});
-                        }}><View><Text>scroll to top</Text></View></TouchableOpacity>
+                        {/*<TouchableOpacity onPress={() => {*/}
+                            {/*this._scrollView.scrollTo({y: 0, animated: false});*/}
+                        {/*}}><View><Text>scroll to top</Text></View></TouchableOpacity>*/}
                     </Right>
                 </Header>
                 {this.state.isHttpRequesting ? this._renderLoadingView() : null}
@@ -336,16 +337,11 @@ class DashBoardView extends Component {
     }
 }
 
-let mainView = StackNavigator({
-    Home: {screen: OpeningView},
-    Dash: {screen: DashBoardView},
-    Content: {screen: ContentView},
-    Comment: {screen: CommentView}
-});
+
 
 const DashDrawerPage = DrawerNavigator({
     Home: {
-        screen: mainView,
+        screen: DashBoardView,
     },
     Comic: {
         screen: ComicThemeView
@@ -386,7 +382,7 @@ const DashDrawerPage = DrawerNavigator({
 }, {
     drawerWidth: 200, // 抽屉宽
     drawerPosition: 'left', // 抽屉在左边还是右边
-    cardStack: {gesturesEnabled: false,},
+    // cardStack: {gesturesEnabled: false,},
     // contentComponent: CustomDrawerContentComponent,  // 自定义抽屉组件
     contentOptions: {
         initialRouteName: 'Home', // 默认页面组件
@@ -414,7 +410,7 @@ const DashDrawerPage = DrawerNavigator({
         // console.log(props);
         return (
             <View style={{flex: 1, backgroundColor: '#242A2F'}}>
-                <View style={{height: 120,marginTop:30}}>
+                <View style={{height: 110,marginTop:40}}>
                     <View style={{flex: 1, flexDirection: 'row'}}>
                         <View style={{flex: 1,marginLeft:16,justifyContent:'center'}}>
                             <Image style={{width:48,height:48}} source={require('./assets/panda.png')}/>
@@ -425,10 +421,16 @@ const DashDrawerPage = DrawerNavigator({
                             }}>请登录</Text>
                         </View>
                     </View>
-                    <View style={{flex:1, flexDirection:'row'}}>
-                        <View style={{flex:1,justifyContent:'center',alignItems:'center'}}><Text style={{color:'white',fontSize:18}}>123</Text></View>
-                        <View style={{flex:1,justifyContent:'center',alignItems:'center'}}><Text style={{color:'white',fontSize:18}}>123</Text></View>
-                        <View style={{flex:1,justifyContent:'center',alignItems:'center'}}><Text style={{color:'white',fontSize:18}}>123</Text></View>
+                    <View style={{flex:1, flexDirection:'row',marginTop:10}}>
+                        <View style={{flex:1,justifyContent:'center',alignItems:'center',flexDirection:'column'}}>
+                            <Image resizeMode="cover" style={{flex:1,width:25,height:25,marginBottom:5}} source={require('./assets/star.png')}/>
+                            <Text style={{flex:1,color:'white',fontSize:12}}>收藏</Text></View>
+                        <View style={{flex:1,justifyContent:'center',alignItems:'center',flexDirection:'column'}}>
+                            <Image resizeMode="cover" style={{flex:1,width:25,height:25,marginBottom:5}} source={require('./assets/message2.png')}/>
+                            <Text style={{flex:1,color:'white',fontSize:12}}>消息</Text></View>
+                        <View style={{flex:1,justifyContent:'center',alignItems:'center',flexDirection:'column'}}>
+                            <Image resizeMode="cover" style={{flex:1,width:25,height:25,marginBottom:5}} source={require('./assets/setting.png')}/>
+                            <Text style={{flex:1,color:'white',fontSize:12}}>设置</Text></View>
                     </View>
                 </View>
                 <ScrollView style={{flex: 1}}>
@@ -439,7 +441,17 @@ const DashDrawerPage = DrawerNavigator({
     },
 });
 
-module.exports = DashDrawerPage;
+let mainView = StackNavigator({
+    Home: {screen: DashDrawerPage},
+    // Dash: {screen: DashBoardView},
+    Content: {screen: ContentView},
+    Comment: {screen: CommentView}
+},{
+    // initialRouteName: 'DashDrawerPage',
+    headerMode: 'none', //解决抽屉弹出有一个空白header的bug
+});
+
+module.exports = mainView;
 
 const styles = StyleSheet.create({
     iosSwiper: {
