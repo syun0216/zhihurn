@@ -16,6 +16,7 @@ import {
 import api from '../api/_index';
 import FullLoadingScreen from '../components/FullScreenLoading';
 import NewStatusBar from '../components/NewStatusBar';
+import ErrorView from '../components/ErrorView';
 import HTMLView from 'react-native-htmlview';
 import CommonCss from '../components/CommonCss';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -50,8 +51,9 @@ export default class ContentView extends Component {
     return (
       <Container>
         <NewStatusBar networkVisible={this.state.isHttpRequesting}/>
+          {this.state.isHttpRequesting ? this.state._renderFullLoadingView() : null}
         {this.state.newsContent === null ?
-        this._renderFullLoadingView() :
+        this._renderErrorView() :
         this._renderMainContentView()}
       </Container>
     )
@@ -133,6 +135,10 @@ export default class ContentView extends Component {
 
   _renderFullLoadingView() {
     return <FullLoadingScreen message="正在加载中..."/>
+  }
+
+  _renderErrorView(){
+    return <ErrorView retry={() => {this._requestNewsContent();this._requestComments()}}/>;
   }
 
   _renderMainContentView() {

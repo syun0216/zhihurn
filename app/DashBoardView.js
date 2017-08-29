@@ -30,7 +30,9 @@ import {StackNavigator, TabNavigator, DrawerNavigator, DrawerItems} from 'react-
 import Swiper from 'react-native-swiper';
 import FullScreenLoading from './components/FullScreenLoading';
 import NewStatusBar from './components/NewStatusBar';
+import ErrorView from './components/ErrorView';
 import api from './api/_index';
+
 import DailyThemeView from './views/DailyThemeView';
 import RecommendThemeView from './views/RecommendThemeView';
 import MovieThemeView from './views/MovieThemeView';
@@ -221,6 +223,10 @@ class DashBoardView extends Component {
 
     _renderLoadingView() {
         return <FullScreenLoading message="正在加载中..."/>
+    }
+
+    _renderErrorView(){
+        return <ErrorView retry={() => this._requestNewsData()}/>
     }
 
     _renderNewsListView() {
