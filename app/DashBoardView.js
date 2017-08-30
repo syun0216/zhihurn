@@ -51,6 +51,7 @@ import OpeningView from './OpeningView';
 
 import ToastUtil from './utils/ToastUtil';
 import FooterUtil from './utils/FooterUtil';
+import LoginView from "./LoginView";
 
 const LOADING = 0;
 const LOAD_SUCCESS = 1;
@@ -315,7 +316,7 @@ class DashBoardView extends Component {
 
     _renderSectionHeader(sectionData, sectionID) {
         return (
-            <View style={{width: this._winWidth, height: 30, backgroundColor: '#1296db'}}>
+            <View style={{width: this._winWidth, height: 30, backgroundColor: '#242A2F'}}>
                 <Text style={{
                     color: '#fff',
                     textAlign: 'center',
@@ -422,7 +423,7 @@ const DashDrawerPage = DrawerNavigator({
                             <Image style={{width:48,height:48}} source={require('./assets/panda.png')}/>
                         </View>
                         <View style={{flex: 1,justifyContent:'center'}}>
-                            <Text style={{
+                            <Text onPress={() => props.navigation.navigate('Login')} style={{
                                 color: '#95999D'
                             }}>请登录</Text>
                         </View>
@@ -451,7 +452,8 @@ let mainView = StackNavigator({
     Home: {screen: DashDrawerPage},
     // Dash: {screen: DashBoardView},
     Content: {screen: ContentView},
-    Comment: {screen: CommentView}
+    Comment: {screen: CommentView},
+    Login:{screen:LoginView}
 },{
     // initialRouteName: 'DashDrawerPage',
     headerMode: 'none', //解决抽屉弹出有一个空白header的bug

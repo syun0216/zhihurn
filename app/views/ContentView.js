@@ -36,7 +36,8 @@ export default class ContentView extends Component {
       isHttpRequesting: false,
       newsContent: null,
       favoriteChecked:false,
-      commentsCount:0
+      commentsCount:0,
+      LoadStatus:true
     };
   }
 
@@ -51,10 +52,11 @@ export default class ContentView extends Component {
     return (
       <Container>
         <NewStatusBar networkVisible={this.state.isHttpRequesting}/>
-          {this.state.isHttpRequesting ? this.state._renderFullLoadingView() : null}
+          {this.state.isHttpRequesting ? this._renderFullLoadingView() : null}
         {this.state.newsContent === null ?
-        this._renderErrorView() :
+        null :
         this._renderMainContentView()}
+        {this.state.LoadStatus ? null : this._renderErrorView()}
       </Container>
     )
   }
@@ -129,7 +131,7 @@ export default class ContentView extends Component {
       }
     }).catch((error) => {
       console.log('Api goes wrong');
-      this.setState({isHttpRequesting: false});
+      this.setState({isHttpRequesting: false,LoadStatus:false});
     });
   }
 

@@ -923,7 +923,7 @@ body.dudu-night,
 .img_div {
     position: relative;
     margin-bottom: 15px;
-    height: 150px;
+    height: 180px;
     background-position: 0 -60px;
     background-size: cover;
 }
