@@ -56,7 +56,7 @@ export default class DailyThemeView extends Component{
     render(){
       return (
         <Container>
-          <Header style={{backgroundColor:'#242A2F'}} iosBarStyle="light-content">
+          <Header style={{backgroundColor:'#242A2F',borderBottomWidth:0}} iosBarStyle="light-content">
             <Left>
               <Button transparent onPress={() => this.props.navigation.navigate('DrawerOpen')}>
                 <Image style={styles.icon} source={require('../assets/menu.png')}/>

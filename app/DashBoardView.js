@@ -349,7 +349,8 @@ class DashBoardView extends Component {
                         <Button transparent style={styles.slide1} key={`${index}`}
                                 onPress={() => this.props.navigation.navigate('Content', {
                                     id: item.id,
-                                    title: item.title
+                                    title: item.title,
+                                    preRoute:'DashBoard'
                                 })}>
                             <View>
                                 <Image style={{width: _winWidth, height: 200}} source={{uri: `${item.image}`}}/>
