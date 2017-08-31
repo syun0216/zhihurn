@@ -29,8 +29,12 @@ export default class ContentView extends Component {
 
   static navigationOptions = () => ({header: null,gesturesEnabled:true});
   // 构造
+  _top = 0;
   constructor(props) {
     super(props);
+    this._top = props.navigation.state.params.preRoute === 'DashBoard' ? -220 : 0;
+    console.log(this._top);
+    console.log(props.navigation);
     // 初始状态
     this.state = {
       isHttpRequesting: false,
@@ -118,7 +122,7 @@ export default class ContentView extends Component {
                           <h3>${data.data.title}</h3>
                           <span>图片&nbsp;&nbsp;:&nbsp;&nbsp;${data.data.image_source}</span>
                         </div>
-                          <div class="${_html_class}" style="margin-top:-220px;">
+                          <div class="${_html_class}" style="margin-top:${this._top}px;">
                             ${data.data.body}
                           </div>
                       </div>

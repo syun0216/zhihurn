@@ -960,8 +960,6 @@ body.dudu-night,
     bottom: 5px;
     right: 10px;
 }
-.html_content {
-    margin-top: -14px;
-}`;
+`;
 
 module.exports = CommonCss;

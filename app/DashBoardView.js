@@ -53,6 +53,7 @@ import OpeningView from './OpeningView';
 import ToastUtil from './utils/ToastUtil';
 import FooterUtil from './utils/FooterUtil';
 import LoginView from "./LoginView";
+import Colors from './utils/Colors';
 
 import UserStore from './store/UserStore';
 
@@ -91,6 +92,7 @@ class DashBoardView extends Component {
             isHttpRequesting: false,
             newsList: ds.cloneWithRows([]),
             requestStatus: null,
+            firstPageLoadingStatus: null,
             isLogin: false,
             refreshing: false
         }
@@ -115,6 +117,10 @@ class DashBoardView extends Component {
 
 //requests
     _requestNewsData() {
+        this.setState({
+            firstPageLoadingStatus: LOADING,
+            isHttpRequesting: true
+        });
         api.getNews().then((data) => {
             if (data.data != null) {
                 data.data.date = data.data.date.substring(0, 4) + "/" + data.data.date.substring(4, 6) + "/" + data.data.date.substring(6, 8);
@@ -128,6 +134,7 @@ class DashBoardView extends Component {
                     isHttpRequesting: false,
                     refreshing: false,
                     newsList: this.state.newsList.cloneWithRows(_data[0].stories),
+                    firstPageLoadingStatus: LOAD_SUCCESS
                 });
                 // console.log(data.data);
                 ToastUtil.show('加载成功', 1000, 'bottom');
@@ -136,7 +143,8 @@ class DashBoardView extends Component {
         }).catch((error) => {
             this.setState({
                 isHttpRequesting: false,
-                refreshing: false
+                refreshing: false,
+                firstPageLoadingStatus: LOAD_FAILED
             });
             ToastUtil.show('加载失败', 1000, 'bottom', 'danger');
             console.log("Api call error");
@@ -154,26 +162,27 @@ class DashBoardView extends Component {
     //   })
     // }
 
-    _requestNextNewsData(){
-      this.setState({requestStatus:LOADING});
-      console.log(this.getDate(day_count));
-      // api.getNewsByDate(this.getDate(day_count)).then((data) => {
-      //   if(data.data !== null && data.data.stories.length !== 0){
-      //     // list_data.push(data.data.stories);
-      //     list_data.concat(data.data.stories);
-      //     this.setState({
-      //         // newsData: this.state.newsData.push(data.data),
-      //         requestStatus:LOAD_SUCCESS,
-      //         // newsList:this.state.newsList.cloneWithRows(list_data),
-      //     });
-      //   }
-      //   console.log(data);
-      // }).catch((error) => {
-      //   this.setState({
-      //     requestStatus:LOAD_FAILED
-      //   });
-      //   console.log("Api goes wrong");
-      // })
+    _requestNextNewsData() {
+        this.setState({requestStatus: LOADING});
+        console.log(day_count);
+        console.log(this.getDate(day_count));
+        // api.getNewsByDate(this.getDate(day_count)).then((data) => {
+        //   if(data.data !== null && data.data.stories.length !== 0){
+        //     // list_data.push(data.data.stories);
+        //     list_data.concat(data.data.stories);
+        //     this.setState({
+        //         // newsData: this.state.newsData.push(data.data),
+        //         requestStatus:LOAD_SUCCESS,
+        //         // newsList:this.state.newsList.cloneWithRows(list_data),
+        //     });
+        //   }
+        //   console.log(data);
+        // }).catch((error) => {
+        //   this.setState({
+        //     requestStatus:LOAD_FAILED
+        //   });
+        //   console.log("Api goes wrong");
+        // })
     }
 
 
@@ -215,13 +224,14 @@ class DashBoardView extends Component {
     }
 
     _onRefreshToRequestFirstPageData() {
+        day_count += 1;
         this.setState({
             refreshing: true
         });
         this._requestNewsData();
     }
 
-    _listenScroll(e){
+    _listenScroll(e) {
         console.log(e);
     }
 
@@ -231,7 +241,7 @@ class DashBoardView extends Component {
         return (
             <Container>
                 <NewStatusBar networkVisible={this.state.isHttpRequesting}/>
-                <Header style={{backgroundColor: '#1296db'}} iosBarStyle="light-content">
+                <Header style={{backgroundColor: Colors.bottom_black,borderBottomWidth:0}} iosBarStyle="light-content">
                     <Left>
                         <Button transparent onPress={() => this.props.navigation.navigate('DrawerOpen', {id: 1})}>
                             <Image style={{width: 24, height: 24}} source={require('./assets/menu.png')}/>
@@ -240,11 +250,12 @@ class DashBoardView extends Component {
                     <Body><Text style={{fontSize: 18, color: 'white'}}>今日热闻</Text></Body>
                     <Right>
                         <Button transparent onPress={() => {
-                        this._scrollView.scrollTo({y: 0, animated: true});
-                        }}><View><Text style={{color:'white'}}>scroll to top</Text></View></Button>
+                            this._scrollView.scrollTo({y: 0, animated: true});
+                        }}><View><Text style={{color: 'white'}}>scroll top</Text></View></Button>
                     </Right>
                 </Header>
                 {this.state.isHttpRequesting ? this._renderLoadingView() : null}
+                {this.state.firstPageLoadingStatus === LOAD_FAILED ? this._renderErrorView() : null}
                 {/*<Content>*/}
                 {this.state.newsData.length === 0 ? null : this._renderNewsListView()}
                 {/*</Content>*/}
@@ -290,17 +301,32 @@ class DashBoardView extends Component {
 
 
     _renderNewsItem(rowData) {
+        // return (
+        //     <ListItem style={{paddingTop: 10, paddingBottom: 10}}
+        //               onPress={() => this.props.navigation.navigate('Content', {id: rowData.id, title: rowData.title,preRoute:'DashBoard'})}>
+        //         <Left>
+        //             <Thumbnail square size={50} source={{uri: rowData.images[0]}}/>
+        //             <Text
+        //                 style={{borderWidth: 0}}>{rowData.title.split("").length > 18 ? rowData.title.substr(0, 18) + '...' : rowData.title}</Text>
+        //         </Left>
+        //         {/* <Body><Text>123</Text></Body> */}
+        //         <Right></Right>
+        //     </ListItem>
+        // )
+
         return (
-            <ListItem style={{paddingTop: 10, paddingBottom: 10}}
-                      onPress={() => this.props.navigation.navigate('Content', {id: rowData.id, title: rowData.title})}>
-                <Left>
-                    <Thumbnail square size={50} source={{uri: rowData.images[0]}}/>
-                    <Text
-                        style={{borderWidth: 0}}>{rowData.title.split("").length > 18 ? rowData.title.substr(0, 18) + '...' : rowData.title}</Text>
-                </Left>
-                {/* <Body><Text>123</Text></Body> */}
-                <Right></Right>
-            </ListItem>
+            <TouchableOpacity transparent style={{height: 70, borderBottomWidth: 1, borderColor: '#ccc'}}
+                              onPress={() => this.props.navigation.navigate('Content', {
+                                  id: rowData.id,
+                                  title: rowData.title,
+                                  preRoute: 'DashBoard'
+                              })}>
+                <View style={{padding: 10, flex: 1, flexDirection: 'row'}}>
+                    <View style={{width: 60}}><Image style={{width: 50, height: 50}} source={{uri: rowData.images[0]}}/></View>
+                    <View style={{flex: 1,justifyContent:'center'}}><Text
+                        style={{color: Colors.fontBlack}}>{rowData.title.split("").length > 18 ? rowData.title.substr(0, 18) + '...' : rowData.title}</Text></View>
+                </View>
+            </TouchableOpacity>
         )
     }
 
@@ -354,7 +380,7 @@ class DashBoardView extends Component {
 
     _renderSectionHeader(sectionData, sectionID) {
         return (
-            <View style={{width: this._winWidth, height: 30, backgroundColor: '#242A2F'}}>
+            <View style={{width: this._winWidth, height: 30, backgroundColor: Colors.main_blue}}>
                 <Text style={{
                     color: '#fff',
                     textAlign: 'center',
@@ -472,13 +498,13 @@ const DashDrawerPage = DrawerNavigator({
                             style={{flex: 1, justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
                             <Image resizeMode="cover" style={{flex: 1, width: 25, height: 25, marginBottom: 5}}
                                    source={require('./assets/star.png')}/>
-                            <Text onPress={() => alert('请先登录哦')}
+                            <Text onPress={() => ToastUtil.show('请先登录哦',1000,'bottom','warning')}
                                   style={{flex: 1, color: 'white', fontSize: 12}}>收藏</Text></View>
                         <View
                             style={{flex: 1, justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
                             <Image resizeMode="cover" style={{flex: 1, width: 25, height: 25, marginBottom: 5}}
                                    source={require('./assets/message2.png')}/>
-                            <Text onPress={() => alert('请先登录哦')}
+                            <Text onPress={() => ToastUtil.show('请先登录哦',1000,'bottom','warning')}
                                   style={{flex: 1, color: 'white', fontSize: 12}}>消息</Text></View>
                         <View
                             style={{flex: 1, justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>

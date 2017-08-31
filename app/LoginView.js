@@ -9,7 +9,7 @@ import NewStatusBar from './components/NewStatusBar';
 import FullScreenLoading from './components/FullScreenLoading'
 import UserStore from './store/UserStore'
 import {NavigationActions} from 'react-navigation'
-import Colors from './utils/Color';
+import Colors from './utils/Colors';
 import ToastUtil from './utils/ToastUtil';
 
 export default class LoginView extends Component{

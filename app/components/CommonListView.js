@@ -1,7 +1,8 @@
 import React,{Component} from 'react';
 import PropTypes from 'prop-types';
-import {ListView,RefreshControl,Text,StyleSheet,Dimensions,View,Image} from 'react-native';
+import {ListView,RefreshControl,Text,StyleSheet,Dimensions,View,Image,TouchableOpacity} from 'react-native';
 import {ListItem,Body,Left,Right,Thumbnail,Button,Container} from 'native-base';
+import Colors from '../utils/Colors';
 _winWidth = Dimensions.get('window').width;
 _windHeight = Dimensions.get('window').height;
 export default class CommonListView extends Component{
@@ -56,6 +57,7 @@ export default class CommonListView extends Component{
           dataSource={this.state.dataSource}
           renderRow={(rowData) => this._renderListItemView(rowData)}
           enableEmptySections={true}
+          showsVerticalScrollIndicator={false}
           renderHeader={() => this._renderHeaderView()}
           renderSectionHeader={(sectionData,sectionID) => this._renderSectionHeaderView(sectionData,sectionID)}
           refreshControl={refreshControl}
@@ -67,15 +69,24 @@ export default class CommonListView extends Component{
     // if(this.props.renderRow !== null){
     //   return this.props.renderRow(rowData);
     // }
-    return (
-      <ListItem style={{paddingTop:10,paddingBottom:10}}
-        onPress={() => this.props.navigation.navigate('Content',{id:rowData.id,title:rowData.title})}>
-        {rowData.images !== null ?
-           <Thumbnail square size={50} source={{uri:rowData.images[0]}}></Thumbnail>
-         : null}
-          <Text style={{borderWidth:0,marginLeft:5}}>{rowData.title.split("").length > 18 ? rowData.title.substr(0,18) + '...' : rowData.title}</Text>
-      </ListItem>
-    )
+    // return (
+    //   <ListItem style={{paddingTop:10,paddingBottom:10}}
+    //     onPress={() => this.props.navigation.navigate('Content',{id:rowData.id,title:rowData.title})}>
+    //     {rowData.images !== null ?
+    //        <Thumbnail square size={50} source={{uri:rowData.images[0]}}></Thumbnail>
+    //      : null}
+    //       <Text style={{borderWidth:0,marginLeft:5}}>{rowData.title.split("").length > 18 ? rowData.title.substr(0,18) + '...' : rowData.title}</Text>
+    //   </ListItem>
+    // )
+
+      return (
+          <TouchableOpacity transparent style={{height:70, borderBottomWidth:1, borderColor:'#ccc'}} onPress={() => this.props.navigation.navigate('Content',{id:rowData.id,title:rowData.title})}>
+            <View style={{padding:10,flex:1,flexDirection:'row'}}>
+                {rowData.images !== null ? <View style={{width:60}}><Image style={{width:50,height:50}} source={{uri:rowData.images[0]}}/></View> : null}
+              <View style={{flex:1,justifyContent:'center'}}><Text style={{color:Colors.fontBlack}}>{rowData.title.split("").length > 18 ? rowData.title.substr(0, 18) + '...' : rowData.title}</Text></View>
+            </View>
+          </TouchableOpacity>
+      )
   }
 
   _renderHeaderView(){
