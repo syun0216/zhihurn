@@ -38,7 +38,7 @@ export default class LoginView extends Component{
                         <Button transparent onPress={() => this.props.navigation.goBack()}><Icon name='arrow-back' style={{fontSize:24,color:'#959595'}}/></Button>
                     </Left>
                     <Body><Text>用户登录</Text></Body>
-                    <Right><Text style={{color:Colors.main_blue}}>注册</Text></Right>
+                    <Right></Right>
                 </Header>
                 <NewStatusBar networkVisible={this.state.isLoading}/>
                 {this.state.isLoading ? this._renderLoadingView() : this._renderLoginView()}
@@ -78,6 +78,7 @@ export default class LoginView extends Component{
                     <Button style={{margin:20,backgroundColor:Colors.main_blue}} block  onPress={() => this._login()}>
                         <Text>登录</Text>
                     </Button>
+                    <Button transparent block style={{marginTop:5}}><Text style={{color:Colors.main_red}}>没有账号？去注册</Text></Button>
                 </Content>
             </Container>
         )
@@ -109,41 +110,22 @@ export default class LoginView extends Component{
             ToastUtil.show('请填写用户名或密码',1000,'bottom');
             return ;
         }
-        const resetAction = NavigationActions.reset({
-            index: 0,
-            actions: [
-                NavigationActions.navigate({ routeName: 'Home'})
-            ]
-        });
+        if(this.state.phone !== '18022129789' && this.state.password !== '123'){
+            ToastUtil.show('用户名和密码错误',1000,'bottom','danger');
+            return ;
+        }
+        // const resetAction = NavigationActions.reset({
+        //     index: 0,
+        //     actions: [
+        //         NavigationActions.navigate({ routeName: 'Home'})
+        //     ]
+        // });
         UserStore.setLoginUserJsonData(this.state.phone);
         // console.log(userData.account.id);
-        this.props.navigation.dispatch(resetAction);
+        // this.props.navigation.dispatch(resetAction);
+        this.props.navigation.goBack();
 
-        // this.setState({isLoading:true});
-        // api.login(this.state.phone,this.state.password).then((data) => {
-        //     console.log(data);
-        //     this.setState({isLoading:false});
-        //     if(data.data.code !== 200){
-        //         Toast.show({
-        //             text: data.data.msg,
-        //             position: 'bottom',
-        //             buttonText: 'Okay'
-        //         });
-        //         return;
-        //     }
-        //     if(data.data !== null ){
-        //         UserStore.setLoginUserJsonData(data);
-        //         this.props.navigation.navigate('Home')
-        //     }
-        //
-        // },() => {
-        //     this.setState({isLoading:false});
-        //     Toast.show({
-        //         text: "登录失败",
-        //         position: 'bottom',
-        //         buttonText: 'Okay'
-        //     });
-        // })
+
     }
 }
 

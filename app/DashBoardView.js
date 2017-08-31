@@ -8,7 +8,8 @@ import {
     Platform,
     Dimensions,
     ListView,
-    TouchableOpacity
+    TouchableOpacity,
+    RefreshControl
 } from 'react-native';
 import {FontAwesome} from 'react-native-vector-icons/FontAwesome';
 import {
@@ -53,6 +54,8 @@ import ToastUtil from './utils/ToastUtil';
 import FooterUtil from './utils/FooterUtil';
 import LoginView from "./LoginView";
 
+import UserStore from './store/UserStore';
+
 const LOADING = 0;
 const LOAD_SUCCESS = 1;
 const LOAD_FAILED = 2;
@@ -61,6 +64,7 @@ let day_count = 1;
 let list_data = [];
 const _winWidth = Dimensions.get('window').width;
 const _winHeight = Dimensions.get('window').height;
+let user_id = null;
 
 class DashBoardView extends Component {
     _scrollView = null;
@@ -86,13 +90,25 @@ class DashBoardView extends Component {
             themesData: [],
             isHttpRequesting: false,
             newsList: ds.cloneWithRows([]),
-            requestStatus: null
+            requestStatus: null,
+            isLogin: false,
+            refreshing: false
         }
     }
 
     componentDidMount() {
         this.setState({
-            isHttpRequesting: true
+            isHttpRequesting: true,
+            refreshing: false
+        });
+        UserStore.getLoginUserJsonData((error, userId) => {
+            "use strict";
+            if (error != null || userId == null) {
+                return;
+            }
+            this.setState({
+                isLogin: true,
+            });
         });
         this._requestNewsData();
     }
@@ -110,15 +126,17 @@ class DashBoardView extends Component {
                 this.setState({
                     newsData: _data,
                     isHttpRequesting: false,
+                    refreshing: false,
                     newsList: this.state.newsList.cloneWithRows(_data[0].stories),
                 });
-                console.log(data.data);
+                // console.log(data.data);
                 ToastUtil.show('加载成功', 1000, 'bottom');
                 // console.log(this.state.newsData);
             }
         }).catch((error) => {
             this.setState({
                 isHttpRequesting: false,
+                refreshing: false
             });
             ToastUtil.show('加载失败', 1000, 'bottom', 'danger');
             console.log("Api call error");
@@ -136,26 +154,27 @@ class DashBoardView extends Component {
     //   })
     // }
 
-    // _requestNextNewsData(){
-    //   this.setState({requestStatus:LOADING});
-    //   api.getNewsByDate(this.getDate(day_count)).then((data) => {
-    //     if(data.data !== null && data.data.stories.length !== 0){
-    //       // list_data.push(data.data.stories);
-    //       list_data.concat(data.data.stories);
-    //       this.setState({
-    //           // newsData: this.state.newsData.push(data.data),
-    //           requestStatus:LOAD_SUCCESS,
-    //           // newsList:this.state.newsList.cloneWithRows(list_data),
-    //       });
-    //     }
-    //     console.log(data);
-    //   }).catch((error) => {
-    //     this.setState({
-    //       requestStatus:LOAD_FAILED
-    //     });
-    //     console.log("Api goes wrong");
-    //   })
-    // }
+    _requestNextNewsData(){
+      this.setState({requestStatus:LOADING});
+      console.log(this.getDate(day_count));
+      // api.getNewsByDate(this.getDate(day_count)).then((data) => {
+      //   if(data.data !== null && data.data.stories.length !== 0){
+      //     // list_data.push(data.data.stories);
+      //     list_data.concat(data.data.stories);
+      //     this.setState({
+      //         // newsData: this.state.newsData.push(data.data),
+      //         requestStatus:LOAD_SUCCESS,
+      //         // newsList:this.state.newsList.cloneWithRows(list_data),
+      //     });
+      //   }
+      //   console.log(data);
+      // }).catch((error) => {
+      //   this.setState({
+      //     requestStatus:LOAD_FAILED
+      //   });
+      //   console.log("Api goes wrong");
+      // })
+    }
 
 
 //common functions
@@ -195,29 +214,40 @@ class DashBoardView extends Component {
         return [_year, _month, _day].join("");
     }
 
+    _onRefreshToRequestFirstPageData() {
+        this.setState({
+            refreshing: true
+        });
+        this._requestNewsData();
+    }
+
+    _listenScroll(e){
+        console.log(e);
+    }
+
 
 //views
     render() {
         return (
             <Container>
                 <NewStatusBar networkVisible={this.state.isHttpRequesting}/>
-                <Header style={{backgroundColor:'#1296db'}} iosBarStyle="light-content">
+                <Header style={{backgroundColor: '#1296db'}} iosBarStyle="light-content">
                     <Left>
                         <Button transparent onPress={() => this.props.navigation.navigate('DrawerOpen', {id: 1})}>
                             <Image style={{width: 24, height: 24}} source={require('./assets/menu.png')}/>
                         </Button>
                     </Left>
-                    <Body><Text style={{fontSize: 18,color:'white'}}>今日热闻</Text></Body>
+                    <Body><Text style={{fontSize: 18, color: 'white'}}>今日热闻</Text></Body>
                     <Right>
-                        {/*<TouchableOpacity onPress={() => {*/}
-                            {/*this._scrollView.scrollTo({y: 0, animated: false});*/}
-                        {/*}}><View><Text>scroll to top</Text></View></TouchableOpacity>*/}
+                        <Button transparent onPress={() => {
+                        this._scrollView.scrollTo({y: 0, animated: true});
+                        }}><View><Text style={{color:'white'}}>scroll to top</Text></View></Button>
                     </Right>
                 </Header>
                 {this.state.isHttpRequesting ? this._renderLoadingView() : null}
-                <Content>
-                    {this.state.newsData.length === 0 ? null : this._renderNewsListView()}
-                </Content>
+                {/*<Content>*/}
+                {this.state.newsData.length === 0 ? null : this._renderNewsListView()}
+                {/*</Content>*/}
             </Container>
         );
     }
@@ -226,7 +256,7 @@ class DashBoardView extends Component {
         return <FullScreenLoading message="正在加载中..."/>
     }
 
-    _renderErrorView(){
+    _renderErrorView() {
         return <ErrorView retry={() => this._requestNewsData()}/>
     }
 
@@ -243,10 +273,18 @@ class DashBoardView extends Component {
             renderRow={(rowData) => this._renderNewsItem(rowData)}
             renderHeader={() => this._swiperView()}
             renderFooter={() => this._renderFooter()}
-            // onEndReached={() => this._requestNextNewsData()}
-            // onEndReachedThreshold={10}
-            // scrollRenderAheadDistance={50}
+            showsVerticalScrollIndicator={false}
+            onEndReached={(e) => this._requestNextNewsData(e)}
+            onEndReachedThreshold={10}
+            scrollRenderAheadDistance={50}
+            onMomentumScrollEnd={() => this._listenScroll()}
             // renderSeparator={(sectionID, rowID) => this._renderListSeparator(sectionID, rowID)}
+            refreshControl={
+                <RefreshControl
+                    style={{backgroundColor: 'white'}}
+                    refreshing={this.state.refreshing}
+                    onRefresh={() => this._onRefreshToRequestFirstPageData()}
+                />}
         />
     }
 
@@ -342,8 +380,8 @@ class DashBoardView extends Component {
                 break;
         }
     }
-}
 
+}
 
 
 const DashDrawerPage = DrawerNavigator({
@@ -414,34 +452,43 @@ const DashDrawerPage = DrawerNavigator({
 
     contentComponent: props => {
         // console.log('contentComponent');
-        // console.log(props);
+
         return (
             <View style={{flex: 1, backgroundColor: '#242A2F'}}>
-                <View style={{height: 110,marginTop:40}}>
+                <View style={{height: 110, marginTop: 40}}>
                     <View style={{flex: 1, flexDirection: 'row'}}>
-                        <View style={{flex: 1,marginLeft:16,justifyContent:'center'}}>
-                            <Image style={{width:48,height:48}} source={require('./assets/panda.png')}/>
+                        <View style={{flex: 1, marginLeft: 16, justifyContent: 'space-around'}}>
+                            <Image style={{width: 48, height: 48}} source={require('./assets/person.png')}/>
                         </View>
-                        <View style={{flex: 1,justifyContent:'center'}}>
+                        <View style={{flex: 1, justifyContent: 'center'}}>
                             <Text onPress={() => props.navigation.navigate('Login')} style={{
-                                color: '#95999D'
-                            }}>请登录</Text>
+                                color: '#95999D',
+                                marginRight: 25,
+                            }}>请先登录</Text>
                         </View>
                     </View>
-                    <View style={{flex:1, flexDirection:'row',marginTop:10}}>
-                        <View style={{flex:1,justifyContent:'center',alignItems:'center',flexDirection:'column'}}>
-                            <Image resizeMode="cover" style={{flex:1,width:25,height:25,marginBottom:5}} source={require('./assets/star.png')}/>
-                            <Text style={{flex:1,color:'white',fontSize:12}}>收藏</Text></View>
-                        <View style={{flex:1,justifyContent:'center',alignItems:'center',flexDirection:'column'}}>
-                            <Image resizeMode="cover" style={{flex:1,width:25,height:25,marginBottom:5}} source={require('./assets/message2.png')}/>
-                            <Text style={{flex:1,color:'white',fontSize:12}}>消息</Text></View>
-                        <View style={{flex:1,justifyContent:'center',alignItems:'center',flexDirection:'column'}}>
-                            <Image resizeMode="cover" style={{flex:1,width:25,height:25,marginBottom:5}} source={require('./assets/setting.png')}/>
-                            <Text style={{flex:1,color:'white',fontSize:12}}>设置</Text></View>
+                    <View style={{flex: 1, flexDirection: 'row', marginTop: 10}}>
+                        <View
+                            style={{flex: 1, justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
+                            <Image resizeMode="cover" style={{flex: 1, width: 25, height: 25, marginBottom: 5}}
+                                   source={require('./assets/star.png')}/>
+                            <Text onPress={() => alert('请先登录哦')}
+                                  style={{flex: 1, color: 'white', fontSize: 12}}>收藏</Text></View>
+                        <View
+                            style={{flex: 1, justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
+                            <Image resizeMode="cover" style={{flex: 1, width: 25, height: 25, marginBottom: 5}}
+                                   source={require('./assets/message2.png')}/>
+                            <Text onPress={() => alert('请先登录哦')}
+                                  style={{flex: 1, color: 'white', fontSize: 12}}>消息</Text></View>
+                        <View
+                            style={{flex: 1, justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
+                            <Image resizeMode="cover" style={{flex: 1, width: 25, height: 25, marginBottom: 5}}
+                                   source={require('./assets/setting.png')}/>
+                            <Text style={{flex: 1, color: 'white', fontSize: 12}}>设置</Text></View>
                     </View>
                 </View>
-                <ScrollView style={{flex: 1}}>
-                    <DrawerItems style={{flex:1}} {...props} />
+                <ScrollView style={{flex: 1}} showsVerticalScrollIndicator={false}>
+                    <DrawerItems style={{flex: 1}} {...props} />
                 </ScrollView>
             </View>
         )
@@ -453,8 +500,8 @@ let mainView = StackNavigator({
     // Dash: {screen: DashBoardView},
     Content: {screen: ContentView},
     Comment: {screen: CommentView},
-    Login:{screen:LoginView}
-},{
+    Login: {screen: LoginView}
+}, {
     // initialRouteName: 'DashDrawerPage',
     headerMode: 'none', //解决抽屉弹出有一个空白header的bug
 });

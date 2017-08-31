@@ -27,7 +27,7 @@ _winWidth = Dimensions.get('window').width;
 _winHeight = Dimensions.get('window').height;
 export default class ContentView extends Component {
 
-  static navigationOptions = () => ({header: null,gesturesEnabled:false});
+  static navigationOptions = () => ({header: null,gesturesEnabled:true});
   // 构造
   constructor(props) {
     super(props);

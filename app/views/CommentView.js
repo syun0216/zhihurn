@@ -8,7 +8,7 @@ import ErrorView from '../components/ErrorView';
 import ToastUtil from '../utils/ToastUtil';
 
 export default class CommentView extends Component {
-    static navigationOptions = () => ({header: null, gesturesEnabled: false});
+    static navigationOptions = () => ({header: null, gesturesEnabled: true});
 
     constructor(props) {
         super(props);
@@ -123,8 +123,8 @@ export default class CommentView extends Component {
                         <View style={{flexDirection:'row'}}><Image style={{width:23,height:23}} source={require('../assets/like_selected.png')}/>
                             <Text style={{marginTop:4,marginLeft:5}}>{data.likes}</Text></View>
                     </View>
-                    <View style={{flex: 1,marginBottom:10}}><Text style={{lineHeight:20}}>{data.content}</Text></View>
-                    <View style={{height: 10}}><Text style={{color:"#ccc"}}>{data.time}</Text></View>
+                    <View style={{flex: 1,marginBottom:10}}><Text style={{lineHeight:20,}}>{data.content}</Text></View>
+                    <View style={{height: 10,marginBottom:10}}><Text style={{color:"#ccc"}}>{data.time}</Text></View>
                 </View>
             </View>
         );
