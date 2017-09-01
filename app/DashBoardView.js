@@ -61,7 +61,8 @@ const LOADING = 0;
 const LOAD_SUCCESS = 1;
 const LOAD_FAILED = 2;
 
-let day_count = 1;
+let current_page = 1;
+let next_page = 1;
 let list_data = [];
 const _winWidth = Dimensions.get('window').width;
 const _winHeight = Dimensions.get('window').height;
@@ -117,10 +118,7 @@ class DashBoardView extends Component {
 
 //requests
     _requestNewsData() {
-        this.setState({
-            firstPageLoadingStatus: LOADING,
-            isHttpRequesting: true
-        });
+
         api.getNews().then((data) => {
             if (data.data != null) {
                 data.data.date = data.data.date.substring(0, 4) + "/" + data.data.date.substring(4, 6) + "/" + data.data.date.substring(6, 8);
@@ -162,27 +160,34 @@ class DashBoardView extends Component {
     //   })
     // }
 
-    _requestNextNewsData() {
+    _requestNextNewsData(day) {
         this.setState({requestStatus: LOADING});
-        console.log(day_count);
-        console.log(this.getDate(day_count));
-        // api.getNewsByDate(this.getDate(day_count)).then((data) => {
-        //   if(data.data !== null && data.data.stories.length !== 0){
-        //     // list_data.push(data.data.stories);
-        //     list_data.concat(data.data.stories);
-        //     this.setState({
-        //         // newsData: this.state.newsData.push(data.data),
-        //         requestStatus:LOAD_SUCCESS,
-        //         // newsList:this.state.newsList.cloneWithRows(list_data),
-        //     });
-        //   }
-        //   console.log(data);
-        // }).catch((error) => {
-        //   this.setState({
-        //     requestStatus:LOAD_FAILED
-        //   });
-        //   console.log("Api goes wrong");
-        // })
+        console.log(day);
+        api.getNewsByDate(day).then((data) => {
+          if(data.data !== null && data.data.stories.length !== 0){
+            // list_data.push(data.data.stories);
+            list_data = list_data.concat(data.data.stories);
+            // console.log(list_data);
+            current_page = next_page;
+            this.setState({
+                // newsData: this.state.newsData.push(data.data),
+                requestStatus:LOAD_SUCCESS,
+                newsList:this.state.newsList.cloneWithRows(list_data),
+            });
+          }
+          else{
+              this.setState({
+                  requestStatus:LOAD_FAILED
+              });
+              next_page = current_page;
+          }
+        }).catch((error) => {
+          this.setState({
+            requestStatus:LOAD_FAILED
+          });
+          next_page = current_page;
+          console.log("Api goes wrong");
+        })
     }
 
 
@@ -216,23 +221,44 @@ class DashBoardView extends Component {
 
     getDate(count) {
         let _date = new Date();
-        _date.setDate(_date.getDate() + 1 - count);
-        let _year = _date.getFullYear();
-        let _month = (_date.getMonth() + 1) < 10 ? "0" + (_date.getMonth() + 1) : _date.getDate() + 1;
-        let _day = (_date.getDate() + 1) < 10 ? "0" + (_date.getDate() + 1) : _date.getDate() + 1;
-        return [_year, _month, _day].join("");
+        _date.setDate(_date.getDate() + count); //获取AddDayCount天后的日期
+        let y = _date.getFullYear();
+        let m = _date.getMonth() + 1; //获取当前月份的日期
+        m = m > 10 ? m : "0" + m;
+        let d = _date.getDate();
+        d = d >= 10 ? d : "0" + d;
+        return y + "" + m + "" + d;
     }
 
     _onRefreshToRequestFirstPageData() {
-        day_count += 1;
         this.setState({
             refreshing: true
         });
+        list_data = [];
+        current_page = 1;
+        next_page = 1;
+        this._requestNewsData();
+    }
+
+    _onPullToRequestNextPageData(){
+        next_page = current_page - 1;
+        this.setState({requestStatus: LOADING});
+        this._requestNextNewsData(this.getDate(next_page));
+    }
+
+    _onErrorToRequestFirstPageData(){
+        this.setState({
+            firstPageLoadingStatus: LOADING,
+            isHttpRequesting:true
+        });
+        list_data = [];
+        current_page = 1;
+        next_page = 1;
         this._requestNewsData();
     }
 
     _listenScroll(e) {
-        console.log(e);
+        // console.log(e);
     }
 
 
@@ -268,7 +294,7 @@ class DashBoardView extends Component {
     }
 
     _renderErrorView() {
-        return <ErrorView retry={() => this._requestNewsData()}/>
+        return <ErrorView retry={() => this._onErrorToRequestFirstPageData()}/>
     }
 
     _renderNewsListView() {
@@ -285,8 +311,8 @@ class DashBoardView extends Component {
             renderHeader={() => this._swiperView()}
             renderFooter={() => this._renderFooter()}
             showsVerticalScrollIndicator={false}
-            onEndReached={(e) => this._requestNextNewsData(e)}
-            onEndReachedThreshold={10}
+            onEndReached={() => this._onPullToRequestNextPageData()}
+            onEndReachedThreshold={5}
             scrollRenderAheadDistance={50}
             onMomentumScrollEnd={() => this._listenScroll()}
             // renderSeparator={(sectionID, rowID) => this._renderListSeparator(sectionID, rowID)}
@@ -301,19 +327,6 @@ class DashBoardView extends Component {
 
 
     _renderNewsItem(rowData) {
-        // return (
-        //     <ListItem style={{paddingTop: 10, paddingBottom: 10}}
-        //               onPress={() => this.props.navigation.navigate('Content', {id: rowData.id, title: rowData.title,preRoute:'DashBoard'})}>
-        //         <Left>
-        //             <Thumbnail square size={50} source={{uri: rowData.images[0]}}/>
-        //             <Text
-        //                 style={{borderWidth: 0}}>{rowData.title.split("").length > 18 ? rowData.title.substr(0, 18) + '...' : rowData.title}</Text>
-        //         </Left>
-        //         {/* <Body><Text>123</Text></Body> */}
-        //         <Right></Right>
-        //     </ListItem>
-        // )
-
         return (
             <TouchableOpacity transparent style={{height: 70, borderBottomWidth: 1, borderColor: '#ccc'}}
                               onPress={() => this.props.navigation.navigate('Content', {
@@ -400,7 +413,7 @@ class DashBoardView extends Component {
             case LOAD_SUCCESS:
                 return null;
             case LOAD_FAILED:
-                return <FooterUtil message="加载失败,请点击重试" callback={() => this._requestNextNewsData()}/>;
+                return <FooterUtil message="加载失败,请点击重试" callback={() => this._onPullToRequestNextPageData()}/>;
                 break;
             default:
                 return null;
