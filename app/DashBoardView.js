@@ -9,7 +9,8 @@ import {
     Dimensions,
     ListView,
     TouchableOpacity,
-    RefreshControl
+    RefreshControl,
+    TouchableWithoutFeedback
 } from 'react-native';
 import {FontAwesome} from 'react-native-vector-icons/FontAwesome';
 import {
@@ -315,7 +316,6 @@ class DashBoardView extends Component {
             onEndReachedThreshold={5}
             scrollRenderAheadDistance={50}
             onMomentumScrollEnd={() => this._listenScroll()}
-            // renderSeparator={(sectionID, rowID) => this._renderListSeparator(sectionID, rowID)}
             refreshControl={
                 <RefreshControl
                     style={{backgroundColor: 'white'}}
@@ -328,7 +328,7 @@ class DashBoardView extends Component {
 
     _renderNewsItem(rowData) {
         return (
-            <TouchableOpacity transparent style={{height: 70, borderBottomWidth: 1, borderColor: '#ccc'}}
+            <TouchableWithoutFeedback transparent style={{height: 70, borderBottomWidth: 1, borderColor: '#ccc'}}
                               onPress={() => this.props.navigation.navigate('Content', {
                                   id: rowData.id,
                                   title: rowData.title,
@@ -339,7 +339,7 @@ class DashBoardView extends Component {
                     <View style={{flex: 1,justifyContent:'center'}}><Text
                         style={{color: Colors.fontBlack}}>{rowData.title.split("").length > 18 ? rowData.title.substr(0, 18) + '...' : rowData.title}</Text></View>
                 </View>
-            </TouchableOpacity>
+            </TouchableWithoutFeedback>
         )
     }
 
@@ -380,16 +380,6 @@ class DashBoardView extends Component {
                 })}
             </Swiper>
         )
-    }
-
-    _renderListSeparator(sectionID, rowID) {
-        return (
-            <View key={`${sectionID}-${rowID}`}
-                  style={{
-                      height: 1,
-                      backgroundColor: '#ccc',
-                  }}/>
-        );
     }
 
     _renderSectionHeader(sectionData, sectionID) {
