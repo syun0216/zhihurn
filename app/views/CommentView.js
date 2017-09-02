@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Text, View, Image,} from 'react-native';
+import {Text, View, Image,Animated,Easing,ScrollView,Dimensions} from 'react-native';
 import {Container, Header, Footer, Body, Content, Left, Right, Button, Icon} from 'native-base';
 import api from '../api/_index';
 import FullScreenLoading from '../components/FullScreenLoading';
@@ -8,7 +8,11 @@ import ErrorView from '../components/ErrorView';
 import ToastUtil from '../utils/ToastUtil';
 import Colors from '../utils/Colors';
 
+const _winWidth = Dimensions.get('window').width;
+const _winHeight = Dimensions.get('window').height;
+
 export default class CommentView extends Component {
+    _scrollView = null;
     static navigationOptions = () => ({header: null, gesturesEnabled: true});
 
     constructor(props) {
@@ -17,7 +21,9 @@ export default class CommentView extends Component {
             isLoading: false,
             longComments: null,
             shortComments: null,
-            isShortCommentsShow: false
+            isShortCommentsShow: false,
+            arrow:new Animated.Value(0),
+            opacity:new Animated.Value(0)
         };
     }
 
@@ -71,6 +77,31 @@ export default class CommentView extends Component {
     }
 
     _onShowShortComments() {
+        if(!this.state.isShortCommentsShow){
+            Animated.timing(this.state.arrow, {
+                toValue: 1, // 目标值
+                duration: 500, // 动画时间
+                easing: Easing.linear // 缓动函数
+            }).start();
+            Animated.timing(this.state.opacity, {
+                toValue: 1, // 目标值
+                duration: 1000, // 动画时间
+                easing: Easing.linear // 缓动函数
+            }).start();
+        }
+        else{
+            Animated.timing(this.state.arrow, {
+                toValue: 0, // 目标值
+                duration: 500, // 动画时间
+                easing: Easing.linear // 缓动函数
+            }).start();
+            Animated.timing(this.state.opacity, {
+                toValue: 0, // 目标值
+                duration: 1000, // 动画时间
+                easing: Easing.linear // 缓动函数
+            }).start();
+            // this._scrollView.scrollTo({y:0,animated: true})
+        }
         this.setState({
             isShortCommentsShow: !this.state.isShortCommentsShow
         })
@@ -85,14 +116,16 @@ export default class CommentView extends Component {
                         color: '#1e90ff',
                         fontSize: 18
                     }}>{this.props.navigation.state.params.count}条评论</Text></Body>
-                    <Right></Right>
+                    <Right>
+                        {/*<Button transparent onPress={() => this._scrollView.scrollToEnd({animated: true})}><Text>scroll 200</Text></Button>*/}
+                    </Right>
                 </Header>
                 <NewStatusBar networkVisible={this.state.isLoading}/>
                 {this.state.isLoading ? this._renderFullLoadingView() : null}
-                <Content>
-                    {this.state.longComments !== null ? this._renderLongCommentView() : null}
-                    {this.state.shortComments !== null ? this._renderShortCommentView() : null}
-                </Content>
+                   <Content>
+                        {this.state.shortComments !== null ? this._renderShortCommentView() : null}
+                        {this.state.longComments !== null ? this._renderLongCommentView() : null}
+                    </Content>
                 <Footer style={{backgroundColor: '#fff',}}>
                     <Left><Button transparent onPress={() => this.props.navigation.goBack()}>
                         <Icon name='arrow-back'
@@ -122,9 +155,11 @@ export default class CommentView extends Component {
         return (
             <View>
                 {this._renderCommonTitleView('短评')}
-                {this.state.isShortCommentsShow ? this.state.shortComments.map((item, idx) => {
-                    return this._renderCommonCommentView(item, idx);
-                }) : null}
+                <Animated.View style={{opacity:this.state.opacity}}>
+                    {this.state.isShortCommentsShow ? this.state.shortComments.map((item, idx) => {
+                        return this._renderCommonCommentView(item, idx);
+                    }) : null}
+                </Animated.View>
             </View>
         )
     }
@@ -142,7 +177,12 @@ export default class CommentView extends Component {
                 borderColor: '#ccc'
             }} transparent onPress={() => this._onShowShortComments()}>
                 <Text style={{flex: 1, color: Colors.fontBlack}}>{name}</Text>
-                <Image style={{width: 20, height: 20}} source={require('../assets/drop-down.png')}/>
+                <Animated.Image style={[{width: 20, height: 20},{transform: [{
+                    rotateZ: this.state.arrow.interpolate({
+                        inputRange: [0,1],
+                        outputRange: ['0deg', '180deg']
+                    })
+                }]}]} source={require('../assets/drop-down.png')}/>
             </Button>
         )
     }

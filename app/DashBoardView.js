@@ -87,12 +87,11 @@ class DashBoardView extends Component {
 
     constructor(props) {
         super(props);
-        let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+        let dsList = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
             newsData: [],
-            themesData: [],
             isHttpRequesting: false,
-            newsList: ds.cloneWithRows([]),
+            newsList: dsList.cloneWithRows([]),
             requestStatus: null,
             firstPageLoadingStatus: null,
             isLogin: false,
@@ -124,15 +123,14 @@ class DashBoardView extends Component {
             if (data.data != null) {
                 data.data.date = data.data.date.substring(0, 4) + "/" + data.data.date.substring(4, 6) + "/" + data.data.date.substring(6, 8);
                 data.data.weekday = this.setWeekDay(data.data.date);
-                data.data.date.substring(6, 8);
                 let _data = [];
                 _data.push(data.data);
-                list_data = _data[0].stories;
+                list_data = data.data.stories;
                 this.setState({
                     newsData: _data,
                     isHttpRequesting: false,
                     refreshing: false,
-                    newsList: this.state.newsList.cloneWithRows(_data[0].stories),
+                    newsList: this.state.newsList.cloneWithRows(list_data),
                     firstPageLoadingStatus: LOAD_SUCCESS
                 });
                 // console.log(data.data);
@@ -163,15 +161,16 @@ class DashBoardView extends Component {
 
     _requestNextNewsData(day) {
         this.setState({requestStatus: LOADING});
-        console.log(day);
         api.getNewsByDate(day).then((data) => {
           if(data.data !== null && data.data.stories.length !== 0){
             // list_data.push(data.data.stories);
+              data.data.date = data.data.date.substring(0, 4) + "/" + data.data.date.substring(4, 6) + "/" + data.data.date.substring(6, 8);
+              data.data.weekday = this.setWeekDay(data.data.date);
             list_data = list_data.concat(data.data.stories);
             // console.log(list_data);
             current_page = next_page;
             this.setState({
-                // newsData: this.state.newsData.push(data.data),
+                // newsData: this.state.newsData.cloneWithRows(all_data),
                 requestStatus:LOAD_SUCCESS,
                 newsList:this.state.newsList.cloneWithRows(list_data),
             });
@@ -343,15 +342,6 @@ class DashBoardView extends Component {
         )
     }
 
-    _renderOpenDrawButton() {
-        return (
-            <Button style={{position: 'absolute', top: 10, left: 10, zIndex: 999}} transparent
-                    onPress={() => this.props.navigation.navigate('DrawerOpen')}>
-                <Image style={{width: 24, height: 24}} source={require('./assets/menu.png')}/>
-            </Button>
-        )
-    }
-
     _swiperView() {
         return (
             <Swiper height={200} autoplay={true} showsButtons={false} showsPagination={false}
@@ -384,7 +374,7 @@ class DashBoardView extends Component {
 
     _renderSectionHeader(sectionData, sectionID) {
         return (
-            <View style={{width: this._winWidth, height: 30, backgroundColor: Colors.main_blue}}>
+            <View key={`${sectionID}`} style={{width: this._winWidth, height: 30, backgroundColor: Colors.main_blue}}>
                 <Text style={{
                     color: '#fff',
                     textAlign: 'center',
