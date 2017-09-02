@@ -1,17 +1,17 @@
 import React, {Component} from 'react';
-import {View, Text,WebView,Dimensions,Image,StyleSheet} from 'react-native';
+import {View, Text, WebView, Dimensions, Image, StyleSheet} from 'react-native';
 import {
-  Container,
-  Header,
-  Content,
-  Footer,
-  Left,
-  Body,
-  Right,
-  Button,
-  Icon,
-  Title,
-  Badge
+    Container,
+    Header,
+    Content,
+    Footer,
+    Left,
+    Body,
+    Right,
+    Button,
+    Icon,
+    Title,
+    Badge
 } from 'native-base';
 import api from '../api/_index';
 import FullLoadingScreen from '../components/FullScreenLoading';
@@ -27,64 +27,62 @@ _winWidth = Dimensions.get('window').width;
 _winHeight = Dimensions.get('window').height;
 export default class ContentView extends Component {
 
-  static navigationOptions = () => ({header: null,gesturesEnabled:true});
-  // 构造
-  _top = 0;
-  constructor(props) {
-    super(props);
-    this._top = props.navigation.state.params.preRoute === 'DashBoard' ? -220 : 0;
-    console.log(this._top);
-    console.log(props.navigation);
-    // 初始状态
-    this.state = {
-      isHttpRequesting: false,
-      newsContent: null,
-      favoriteChecked:false,
-      commentsCount:0,
-      LoadStatus:true
-    };
-  }
+    static navigationOptions = () => ({header: null, gesturesEnabled: true});
+    // 构造
+    _top = 0;
 
-  componentDidMount() {
-    this.setState({isHttpRequesting: true});
-    this._requestNewsContent();
-    this._requestComments();
-  }
+    constructor(props) {
+        super(props);
+        this._top = props.navigation.state.params.preRoute === 'DashBoard' ? -220 : 0;
+        // 初始状态
+        this.state = {
+            isHttpRequesting: false,
+            newsContent: null,
+            favoriteChecked: false,
+            commentsCount: 0,
+            LoadStatus: true
+        };
+    }
+
+    componentDidMount() {
+        this.setState({isHttpRequesting: true});
+        this._requestNewsContent(this.props.navigation.state.params.id);
+        this._requestComments(this.props.navigation.state.params.id);
+    }
 
 
-  render(){
-    return (
-      <Container>
-        <NewStatusBar networkVisible={this.state.isHttpRequesting}/>
-          {this.state.isHttpRequesting ? this._renderFullLoadingView() : null}
-        {this.state.newsContent === null ?
-        null :
-        this._renderMainContentView()}
-        {this.state.LoadStatus ? null : this._renderErrorView()}
-      </Container>
-    )
-  }
+    render() {
+        return (
+            <Container>
+                <NewStatusBar networkVisible={this.state.isHttpRequesting} iosBgColor="white" borderBottom={1}/>
+                {this.state.isHttpRequesting ? this._renderFullLoadingView() : null}
+                {this.state.newsContent === null ?
+                    null : this._renderMainContentView()}
+                {this.state.LoadStatus ? null : this._renderErrorView()}
+            </Container>
+        )
+    }
 
-  _requestComments(){
-    api.getCommentsById(this.props.navigation.state.params.id).then((data) => {
-      console.log(data);
-      if(data != null && data.data != null){
-        this.setState({
-          commentsCount:data.data.comments
-        });
-      };
-      ToastUtil.show('加载成功',1000,'bottom');
-    }).catch(() => {
-      ToastUtil.show('api goes wrong',1000);
-      // console.log('api goes wrong');
-    })
-  }
+    _requestComments(id) {
+        api.getCommentsById(id).then((data) => {
+            if (data != null && data.data != null) {
+                this.setState({
+                    commentsCount: data.data.comments
+                });
+            }
+            ;
+            ToastUtil.show('加载成功', 1000, 'bottom');
+        }).catch(() => {
+            ToastUtil.show('api goes wrong', 1000);
+            // console.log('api goes wrong');
+        })
+    }
 
-  _requestNewsContent() {
-    api.getNewsById(this.props.navigation.state.params.id).then((data) => {
-      if (data.data != null) {
-        let _html_class = data.data.image != null ?"html_content" : null;
-        let _html = `<!DOCTYPE html>
+    _requestNewsContent(id) {
+        api.getNewsById(id).then((data) => {
+            if (data.data != null) {
+                let _html_class = data.data.image != null ? "html_content" : null;
+                let _html = `<!DOCTYPE html>
                     <html>
                       <head>
                         <meta charset="utf-8">
@@ -128,50 +126,68 @@ export default class ContentView extends Component {
                       </div>
                       </body>
                     </html>`;
-        // let _html = `<div><p style="color:red">这是测试的html</p></div>`
-        data.data.html = _html;
-        this.setState({isHttpRequesting: false, newsContent: data.data});
-        console.log(this.state.newsContent);
-      }
-    }).catch((error) => {
-      console.log('Api goes wrong');
-      this.setState({isHttpRequesting: false,LoadStatus:false});
-    });
-  }
+                // let _html = `<div><p style="color:red">这是测试的html</p></div>`
+                data.data.html = _html;
+                this.setState({isHttpRequesting: false, newsContent: data.data});
+                // console.log(this.state.newsContent);
+            }
+        }).catch((error) => {
+            console.log('Api goes wrong');
+            this.setState({isHttpRequesting: false, LoadStatus: false});
+        });
+    }
 
-  _renderFullLoadingView() {
-    return <FullLoadingScreen message="正在加载中..."/>
-  }
+    _renderFullLoadingView() {
+        return <FullLoadingScreen message="正在加载中..."/>
+    }
 
-  _renderErrorView(){
-    return <ErrorView retry={() => {this._requestNewsContent();this._requestComments()}}/>;
-  }
+    _renderErrorView() {
+        return <ErrorView retry={() => {
+            this._requestNewsContent();
+            this._requestComments()
+        }}/>;
+    }
 
-  _renderMainContentView() {
-    const navigation = this.props.navigation;
-    return (
-      <Container>
-        <Content>
-          <WebView bounces={false}
-                scalesPageToFit={true}
-                source={{html:this.state.newsContent.html}}
-                style={{width:_winWidth, height:_winHeight}}>
-              </WebView>
-          {/* <HTMLView value={this.state.newsContent.html}/> */}
-        </Content>
-        <Footer style={{backgroundColor:'white'}}>
-          <Button transparent style={styles.bottomButton} onPress={() => this.props.navigation.goBack()}><Icon name='arrow-back' style={{color:'#959595'}}/></Button>
-          <Button transparent style={styles.bottomButton}><MaterialCommunityIcons name="chevron-double-down" style={[styles.IconStyle,{fontSize:22}]}/></Button>
-          <Button transparent style={styles.bottomButton}><MaterialCommunityIcons name="share-variant" style={[styles.IconStyle,{fontSize:18}]}/></Button>
-          <Button transparent style={styles.bottomButton} onPress={() => this.addNewsToFavorite()}>
-            {this.state.favoriteChecked ? <MaterialIcons name='favorite' style={{fontSize:20,color:'#ff5858'}}/> : <MaterialIcons name="favorite-border" style={[styles.IconStyle,{fontSize:20}]}/>}
-          </Button>
+    _renderMainContentView() {
+        const navigation = this.props.navigation;
+        return (
+            <Container>
+                <Content>
+                    <WebView bounces={false}
+                             scalesPageToFit={true}
+                             source={{html: this.state.newsContent.html}}
+                             style={{width: _winWidth, height: _winHeight}}>
+                    </WebView>
+                    {/* <HTMLView value={this.state.newsContent.html}/> */}
+                </Content>
+                <Footer style={{backgroundColor: 'white'}}>
+                    <Button transparent style={styles.bottomButton} onPress={() => this.props.navigation.goBack()}><Icon
+                        name='arrow-back' style={{color: '#959595'}}/></Button>
+                    <Button transparent style={styles.bottomButton}
+                            onPress={() => this._toNextArticle()}><MaterialCommunityIcons name="chevron-double-down"
+                                                                                          style={[styles.IconStyle, {fontSize: 22}]}/></Button>
+                    <Button transparent style={styles.bottomButton}><MaterialCommunityIcons name="share-variant"
+                                                                                            style={[styles.IconStyle, {fontSize: 18}]}/></Button>
+                    <Button transparent style={styles.bottomButton} onPress={() => this.addNewsToFavorite()}>
+                        {this.state.favoriteChecked ?
+                            <MaterialIcons name='favorite' style={{fontSize: 20, color: '#ff5858'}}/> :
+                            <MaterialIcons name="favorite-border" style={[styles.IconStyle, {fontSize: 20}]}/>}
+                    </Button>
 
-          <Button transparent style={[styles.bottomButton,{position:'relative'}]} onPress={() => this.props.navigation.navigate('Comment',{id:this.props.navigation.state.params.id,count:this.state.commentsCount})}>
-            <MaterialCommunityIcons name="comment-processing-outline" style={[styles.IconStyle,{fontSize:18}]}/>
-            <Text style={[{position:'absolute',top:0,color:'#ff5858'},this.state.commentsCount > 10 ? {right:14} : {right:20}]}>{this.state.commentsCount}</Text>
-          </Button>
-          {/* <Left>
+                    <Button transparent style={[styles.bottomButton, {position: 'relative'}]}
+                            onPress={() => this.props.navigation.navigate('Comment', {
+                                id: this.props.navigation.state.params.id,
+                                count: this.state.commentsCount
+                            })}>
+                        <MaterialCommunityIcons name="comment-processing-outline"
+                                                style={[styles.IconStyle, {fontSize: 18}]}/>
+                        <Text style={[{
+                            position: 'absolute',
+                            top: 0,
+                            color: '#ff5858'
+                        }, this.state.commentsCount > 10 ? {right: 14} : {right: 20}]}>{this.state.commentsCount}</Text>
+                    </Button>
+                    {/* <Left>
             <Button transparent onPress={() => this.props.navigation.goBack()}>
               <Icon name='arrow-back'/>
             </Button>
@@ -180,35 +196,63 @@ export default class ContentView extends Component {
             <Title>{navigation.state.params.title}</Title>
           </Body>
           <Right/> */}
-        </Footer>
-      </Container>
-    );
-  }
+                </Footer>
+            </Container>
+        );
+    }
 
-  //commonFunction
-  addNewsToFavorite(){
-    if(!this.state.favoriteChecked){
-      this.setState({
-        favoriteChecked:true
-      });
-      ToastUtil.show('收藏成功',1000,'top','success');
+    //commonFunction
+    _toNextArticle() {
+        let list_item = this.props.navigation.state.params.list_data;
+        let idx = Math.floor(Math.random() * list_item.length);
+        this.setState({
+            isHttpRequesting: true
+        });
+        this.setState({
+            newsContent: null,
+            commentsCount: 0
+        });
+        this._requestNewsContent(list_item[idx].id);
+        this._requestComments(list_item[idx].id);
+        // let nextId = null;
+        // for(let idx in list_item){
+        //   if(list_item[idx-1].id === currentId){
+        // //     if(idx < list_item.length){
+        // //       nextId = list_item[idx].id;
+        // // //       this._requestNewsContent(list_item[idx+1].id);
+        // // //       this._requestComments(list_item[idx+1].id);
+        // // //       currentId=list_item[idx+1].id;
+        // //     }
+        // //     else{
+        // //       ToastUtil.show('已经是最后一条了...',1000,'bottom');
+        // //     }
+        //   }
+        // }
     }
-    else{
-      this.setState({
-        favoriteChecked:false
-      });
-      ToastUtil.show('取消收藏',1000,'top','warning');
+
+    addNewsToFavorite() {
+        if (!this.state.favoriteChecked) {
+            this.setState({
+                favoriteChecked: true
+            });
+            ToastUtil.show('收藏成功', 1000, 'top', 'success');
+        }
+        else {
+            this.setState({
+                favoriteChecked: false
+            });
+            ToastUtil.show('取消收藏', 1000, 'top', 'warning');
+        }
     }
-  }
 
 }
 const styles = StyleSheet.create({
-  bottomButton:{
-    flex:1,
-    marginTop:5
-  },
-  IconStyle:{
-    color:"#959595",
-    // fontSize:18
-  }
+    bottomButton: {
+        flex: 1,
+        marginTop: 5
+    },
+    IconStyle: {
+        color: "#959595",
+        // fontSize:18
+    }
 });

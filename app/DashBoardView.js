@@ -13,6 +13,7 @@ import {
     TouchableWithoutFeedback
 } from 'react-native';
 import {FontAwesome} from 'react-native-vector-icons/FontAwesome';
+import LinearGradient from 'react-native-linear-gradient';
 import {
     Container,
     Header,
@@ -266,8 +267,8 @@ class DashBoardView extends Component {
     render() {
         return (
             <Container>
-                <NewStatusBar networkVisible={this.state.isHttpRequesting}/>
-                <Header style={{backgroundColor: Colors.bottom_black,borderBottomWidth:0}} iosBarStyle="light-content">
+                {/*<NewStatusBar networkVisible={this.state.isHttpRequesting}/>*/}
+                <Header style={{backgroundColor: Colors.fontBlack,borderBottomWidth:0}} iosBarStyle="light-content">
                     <Left>
                         <Button transparent onPress={() => this.props.navigation.navigate('DrawerOpen', {id: 1})}>
                             <Image style={{width: 24, height: 24}} source={require('./assets/menu.png')}/>
@@ -300,6 +301,7 @@ class DashBoardView extends Component {
     _renderNewsListView() {
 
         return <ListView
+             style={{backgroundColor:Colors.bgColor}}
             ref={(scrollView) => {
                 this._scrollView = scrollView;
             }}
@@ -327,13 +329,19 @@ class DashBoardView extends Component {
 
     _renderNewsItem(rowData) {
         return (
-            <TouchableWithoutFeedback transparent style={{height: 70, borderBottomWidth: 1, borderColor: '#ccc'}}
+            <TouchableWithoutFeedback transparent style={{height: 70,flex:1,padding:10,justifyContent:'center'}}
                               onPress={() => this.props.navigation.navigate('Content', {
                                   id: rowData.id,
                                   title: rowData.title,
-                                  preRoute: 'DashBoard'
+                                  preRoute: 'DashBoard',
+                                  list_data:list_data
                               })}>
-                <View style={{padding: 10, flex: 1, flexDirection: 'row'}}>
+                <View style={{backgroundColor:'white',marginTop: 10,marginLeft:10,marginRight:10,padding:10, flex: 1, flexDirection: 'row',borderRadius:10,
+                    shadowColor: '#5b7392',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.15,
+                    shadowRadius: 2,
+                    elevation: 1,}}>
                     <View style={{width: 60}}><Image style={{width: 50, height: 50}} source={{uri: rowData.images[0]}}/></View>
                     <View style={{flex: 1,justifyContent:'center'}}><Text
                         style={{color: Colors.fontBlack}}>{rowData.title.split("").length > 18 ? rowData.title.substr(0, 18) + '...' : rowData.title}</Text></View>
@@ -374,7 +382,12 @@ class DashBoardView extends Component {
 
     _renderSectionHeader(sectionData, sectionID) {
         return (
-            <View key={`${sectionID}`} style={{width: this._winWidth, height: 30, backgroundColor: Colors.main_blue}}>
+            <View key={`${sectionID}`} style={{margin:10,width:200,backgroundColor:Colors.main_yellow, height: 30,
+                flex:1,justifyContent:'center',alignItems:'center',borderRadius:10,
+                shadowColor: '#5b7392',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.8,
+                shadowRadius: 2,}}>
                 <Text style={{
                     color: '#fff',
                     textAlign: 'center',

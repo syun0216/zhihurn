@@ -8,6 +8,8 @@ let colors = {
     bottom_black:"#242A2F",
     fontBlack:"#323233",
     main_blue:"#1296db",
+    bgColor:'#f9faff',
+    main_yellow:'#ffd300'
 };
 
 module.exports = colors;

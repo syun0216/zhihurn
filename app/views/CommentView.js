@@ -120,7 +120,6 @@ export default class CommentView extends Component {
                         {/*<Button transparent onPress={() => this._scrollView.scrollToEnd({animated: true})}><Text>scroll 200</Text></Button>*/}
                     </Right>
                 </Header>
-                <NewStatusBar networkVisible={this.state.isLoading}/>
                 {this.state.isLoading ? this._renderFullLoadingView() : null}
                    <Content>
                         {this.state.shortComments !== null ? this._renderShortCommentView() : null}

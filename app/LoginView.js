@@ -40,7 +40,6 @@ export default class LoginView extends Component{
                     <Body><Text>用户登录</Text></Body>
                     <Right></Right>
                 </Header>
-                <NewStatusBar networkVisible={this.state.isLoading}/>
                 {this.state.isLoading ? this._renderLoadingView() : this._renderLoginView()}
             </Container>
         )
