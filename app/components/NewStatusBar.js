@@ -11,6 +11,7 @@ export default class NewStatusBar extends Component{
     transition:React.PropTypes.string, //ios
     hidden:React.PropTypes.bool, //ios
     iosBgColor:React.PropTypes.string, //ios
+    iosHeight:React.PropTypes.number, //ios
     borderBottom:React.PropTypes.number, //ios
     androidBgColor:React.PropTypes.string, //android
     transparent:React.PropTypes.bool //android
@@ -22,6 +23,7 @@ export default class NewStatusBar extends Component{
     transition:'fade',
     hidden:false,
     iosBgColor:Colors.bottom_black,
+    iosHeight:STATUSBAR_HEIGHT,
     borderBottom:0,
     androidBgColor:'white',
     transparent:false
@@ -32,9 +34,9 @@ export default class NewStatusBar extends Component{
 
   render(){
     let _platformIos = Platform.OS === 'ios';
-    let {barStyle,networkVisible,transition,hidden,iosBgColor,borderBottom,androidBgColor,transparent} = this.props;
+    let {barStyle,networkVisible,transition,hidden,iosBgColor,iosHeight,borderBottom,androidBgColor,transparent} = this.props;
     return (
-        <View style={{backgroundColor:iosBgColor,height:STATUSBAR_HEIGHT,borderBottomWidth:borderBottom, borderColor:"#ccc"}}>
+        <View style={{backgroundColor:iosBgColor,height:iosHeight,borderBottomWidth:borderBottom, borderColor:"#ccc"}}>
           <StatusBar barStyle={barStyle} networkActivityIndicatorVisible={networkVisible}
           transition={transition} hidden={hidden} backgroundColor={androidBgColor} translucent={transparent}/>
         </View>

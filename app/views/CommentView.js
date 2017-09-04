@@ -171,9 +171,9 @@ export default class CommentView extends Component {
                 justifyContent: 'space-around',
                 padding: 10,
                 borderBottomWidth: 1,
-                height: 30,
+                height: 50,
                 backgroundColor: 'white',
-                borderColor: '#ccc'
+                borderColor: '#ccc',
             }} transparent onPress={() => this._onShowShortComments()}>
                 <Text style={{flex: 1, color: Colors.fontBlack}}>{name}</Text>
                 <Animated.Image style={[{width: 20, height: 20},{transform: [{

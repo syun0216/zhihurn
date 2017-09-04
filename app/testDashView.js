@@ -51,6 +51,7 @@ import PEThemeView from './views/PEThemeView';
 import ContentView from './views/ContentView';
 import CommentView from './views/CommentView';
 import OpeningView from './OpeningView';
+import testDashView from './testDashView';
 
 import ToastUtil from './utils/ToastUtil';
 import FooterUtil from './utils/FooterUtil';
@@ -66,14 +67,12 @@ const LOAD_FAILED = 2;
 let current_page = 1;
 let next_page = 1;
 let list_data = [];
-let all_data = [];
 const _winWidth = Dimensions.get('window').width;
 const _winHeight = Dimensions.get('window').height;
 let user_id = null;
 
 class DashBoardView extends Component {
     _scrollView = null;
-    isFirstTime  = false; //判断是不是第一次触发listview的onendreach方法
     static navigationOptions = {
         header: null,
         drawerLabel: '主页',
@@ -90,18 +89,15 @@ class DashBoardView extends Component {
 
     constructor(props) {
         super(props);
-        let ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2,sectionHeaderHasChanged: (s1, s2) => s1 !== s2});
         let dsList = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
         this.state = {
-            newsData: ds.cloneWithRows([]),
+            newsData: [],
             isHttpRequesting: false,
             newsList: dsList.cloneWithRows([]),
             requestStatus: LOADING,
             firstPageLoadingStatus: null,
             isLogin: false,
-            refreshing: false,
-            titleData:null,
-
+            refreshing: false
         }
     }
 
@@ -131,16 +127,15 @@ class DashBoardView extends Component {
                 data.data.weekday = this.setWeekDay(data.data.date);
                 let _data = [];
                 _data.push(data.data);
-                all_data = _data;
                 list_data = data.data.stories;
                 this.setState({
-                    newsData: this.state.newsData.cloneWithRows(all_data),
+                    newsData: _data,
                     isHttpRequesting: false,
                     refreshing: false,
                     newsList: this.state.newsList.cloneWithRows(list_data),
-                    firstPageLoadingStatus: LOAD_SUCCESS,
-                    titleData:_data
+                    firstPageLoadingStatus: LOAD_SUCCESS
                 });
+                // console.log(data.data);
                 ToastUtil.show('加载成功', 1000, 'bottom');
                 // console.log(this.state.newsData);
             }
@@ -155,19 +150,29 @@ class DashBoardView extends Component {
         });
     }
 
+    // _requestThemesData(){
+    //   api.getTopics().then((data) => {
+    //     if(data.data != null && data.data.others.length > 0){
+    //     this.setState({
+    //       themesData:data.data.others
+    //     });
+    //     // console.log(this.state.themesData);
+    //     }
+    //   })
+    // }
+
     _requestNextNewsData(day) {
         // this.setState({requestStatus: LOADING});
         api.getNewsByDate(day).then((data) => {
             if (data.data !== null && data.data.stories.length !== 0) {
-                let _day = null;
                 // list_data.push(data.data.stories);
                 data.data.date = data.data.date.substring(0, 4) + "/" + data.data.date.substring(4, 6) + "/" + data.data.date.substring(6, 8);
                 data.data.weekday = this.setWeekDay(data.data.date);
-                all_data.push(data.data);
                 list_data = list_data.concat(data.data.stories);
+                // console.log(list_data);
                 current_page = next_page;
                 this.setState({
-                    newsData: this.state.newsData.cloneWithRows(all_data),
+                    // newsData: this.state.newsData.cloneWithRows(all_data),
                     requestStatus: LOADING,
                     newsList: this.state.newsList.cloneWithRows(list_data),
                 });
@@ -227,19 +232,6 @@ class DashBoardView extends Component {
         return y + "" + m + "" + d;
     }
 
-    //去除数组中的重复对象
-    dedupe(arr) {
-        return arr.reduce(function (p, c) {
-
-            let key = [c.x, c.y].join('|');
-            if (p.temp.indexOf(key) === -1) {
-                p.out.push(c);
-                p.temp.push(key);
-            }
-            return p;
-        }, { temp: [], out: [] }).out;
-    }
-
     _onRefreshToRequestFirstPageData() {
         this.setState({
             refreshing: true
@@ -251,15 +243,9 @@ class DashBoardView extends Component {
     }
 
     _onPullToRequestNextPageData() {
+        console.log(1);
         next_page = current_page - 1;
-        // if(this.isFirstTime){
-        //     if(this.state.requestStatus !== LOADING){
-        //         this.isFirstTime = false;
-        //     }
-        //     return;
-        // }
         // this.setState({requestStatus: LOADING});
-        // this.isFirstTime = true;
         this._requestNextNewsData(this.getDate(next_page));
     }
 
@@ -282,25 +268,25 @@ class DashBoardView extends Component {
 //views
     render() {
         return (
-            <Container>
-                <NewStatusBar networkVisible={this.state.isHttpRequesting} iosBgColor="transparent" iosHeight={0} barStyle="light-content"/>
-                {/*<Header style={{backgroundColor: Colors.fontBlack, borderBottomWidth: 0}} iosBarStyle="light-content">*/}
-                {/*<Left>*/}
-                <Button style={{position:'absolute',zIndex:1000,top:10,left:5}} transparent onPress={() => this.props.navigation.navigate('DrawerOpen', {id: 1})}>
-                    <Image style={{width: 24, height: 24}} source={require('./assets/menu.png')}/>
-                </Button>
-                {/*</Left>*/}
-                {/*<Body><Text style={{fontSize: 18, color: 'white'}}>今日热闻</Text></Body>*/}
-                {/*<Right>*/}
-                {/*<Button transparent onPress={() => {*/}
-                {/*this._scrollView.scrollTo({y: 0, animated: true});*/}
-                {/*}}><View><Text style={{color: 'white'}}>scroll top</Text></View></Button>*/}
-                {/*</Right>*/}
-                {/*</Header>*/}
+            <Container style={{position:'relative'}}>
+                {/*<NewStatusBar networkVisible={this.state.isHttpRequesting}/>*/}
+                <Header style={{backgroundColor: Colors.fontBlack, borderBottomWidth: 0}} iosBarStyle="light-content">
+                    <Left>
+                        <Button transparent onPress={() => this.props.navigation.navigate('DrawerOpen', {id: 1})}>
+                            <Image style={{width: 24, height: 24}} source={require('./assets/menu.png')}/>
+                        </Button>
+                    </Left>
+                    <Body><Text style={{fontSize: 18, color: 'white'}}>今日热闻</Text></Body>
+                    <Right>
+                        <Button transparent onPress={() => {
+                            this._scrollView.scrollTo({y: 0, animated: true});
+                        }}><View><Text style={{color: 'white'}}>scroll top</Text></View></Button>
+                    </Right>
+                </Header>
                 {this.state.isHttpRequesting ? this._renderLoadingView() : null}
                 {this.state.firstPageLoadingStatus === LOAD_FAILED ? this._renderErrorView() : null}
                 {/*<Content>*/}
-                {this.state.titleData === null ? null : this._renderNewsListView()}
+                {this.state.newsData.length === 0 ? null : this._renderNewsListView()}
                 {/*</Content>*/}
             </Container>
         );
@@ -323,15 +309,14 @@ class DashBoardView extends Component {
             }}
             initialListSize={10}
             pageSize={10}
-            dataSource={this.state.newsData}
+            dataSource={this.state.newsList}
             renderSectionHeader={(sectionData, sectionID) => this._renderSectionHeader(sectionData, sectionID)}
             renderRow={(rowData) => this._renderNewsItem(rowData)}
             renderHeader={() => this._swiperView()}
             renderFooter={() => this._renderFooter()}
-            enableEmptySections={true}
             showsVerticalScrollIndicator={false}
             onEndReached={() => this._onPullToRequestNextPageData()}
-            onEndReachedThreshold={10}
+            onEndReachedThreshold={5}
             scrollRenderAheadDistance={50}
             onMomentumScrollEnd={() => this._listenScroll()}
             refreshControl={
@@ -345,73 +330,45 @@ class DashBoardView extends Component {
 
 
     _renderNewsItem(rowData) {
-        // console.log(rowData);
         return (
-            <View>
+            <TouchableWithoutFeedback transparent style={{height: 70, flex: 1, padding: 10, justifyContent: 'center'}}
+                                      onPress={() => this.props.navigation.navigate('Content', {
+                                          id: rowData.id,
+                                          title: rowData.title,
+                                          preRoute: 'DashBoard',
+                                          list_data: list_data
+                                      })}>
                 <View style={{
+                    backgroundColor: 'white',
                     marginTop: 10,
                     marginLeft: 10,
                     marginRight: 10,
-                    width: 200,
-                    backgroundColor: Colors.main_yellow,
-                    height: 30,
+                    padding: 10,
                     flex: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    borderRadius: 15,
+                    flexDirection: 'row',
+                    borderRadius: 10,
                     shadowColor: '#5b7392',
                     shadowOffset: {width: 0, height: 2},
-                    shadowOpacity: 0.8,
+                    shadowOpacity: 0.15,
                     shadowRadius: 2,
+                    elevation: 1,
                 }}>
-                    <Text style={{
-                        color: '#fff',
-                        textAlign: 'center',
-                        marginTop: 5
-                    }}>{rowData.date}{rowData.weekday}</Text>
+                    <View style={{width: 60}}><Image style={{width: 50, height: 50}} source={{uri: rowData.images[0]}}/></View>
+                    <View style={{flex: 1, justifyContent: 'center'}}><Text
+                        style={{color: Colors.fontBlack}}>{rowData.title.split("").length > 18 ? rowData.title.substr(0, 18) + '...' : rowData.title}</Text></View>
                 </View>
-                {rowData.stories.map((item,idx) => {
-                    return  <TouchableWithoutFeedback key={`${idx}`} transparent style={{height: 70, flex: 1, padding: 10, justifyContent: 'center'}}
-                                                      onPress={() => this.props.navigation.navigate('Content', {
-                                                          id: item.id,
-                                                          title: item.title,
-                                                          preRoute: 'DashBoard',
-                                                          list_data: list_data
-                                                      })}>
-                        <View style={{
-                            backgroundColor: 'white',
-                            marginTop: 10,
-                            marginLeft: 10,
-                            marginRight: 10,
-                            padding: 10,
-                            flex: 1,
-                            flexDirection: 'row',
-                            borderRadius: 10,
-                            shadowColor: '#5b7392',
-                            shadowOffset: {width: 0, height: 2},
-                            shadowOpacity: 0.15,
-                            shadowRadius: 2,
-                            elevation: 1,
-                        }}>
-                            <View style={{width: 60}}><Image style={{width: 50, height: 50}} source={{uri: item.images[0]}}/></View>
-                            <View style={{flex: 1, justifyContent: 'center'}}>
-                                <Text
-                                    style={{color: Colors.fontBlack,lineHeight:20,fontSize:14}}>{item.title}</Text></View>
-                        </View>
-                    </TouchableWithoutFeedback>
-                })}
-            </View>
+            </TouchableWithoutFeedback>
         )
     }
 
     _swiperView() {
         return (
-            <Swiper height={250} autoplay={true} showsButtons={false} showsPagination={true}
-                    paginationStyle={{marginLeft:180}} dotStyle={{width:10,height:10,borderRadius:5,marginLeft:10}}
+            <Swiper height={200} autoplay={true} showsButtons={false} showsPagination={true}
+                    paginationStyle={{flex:1,alignItems:'flex-end'}} dotStyle={{width:10,height:10,borderRadius:5,marginLeft:10}}
                     activeDotColor="white" activeDotStyle={{width:10,height:10,borderRadius:5,marginLeft:10}}
                 // style={{marginTop: -20}} dotStyle={{marginTop: -40}} activeDotStyle={{marginTop: -40}}>
             >
-                {this.state.titleData[0].top_stories.map((item, index) => {
+                {this.state.newsData[0].top_stories.map((item, index) => {
                     return (
                         <Button transparent style={styles.slide1} key={`${index}`}
                                 onPress={() => this.props.navigation.navigate('Content', {
@@ -425,11 +382,10 @@ class DashBoardView extends Component {
                                     width: _winWidth,
                                     height: 250,
                                     position: 'absolute',
-                                    backgroundColor: '#5b7492',
+                                    backgroundColor: '#fff',
                                     opacity: 0.3
                                 }}></View>
                                 <View style={{
-                                    width: _winWidth,
                                     display: 'flex',
                                     justifyContent: 'center',
                                     alignItems: 'center',
@@ -443,12 +399,12 @@ class DashBoardView extends Component {
                                     <View style={{position:'relative'}}>
                                         <Text style={{
                                             color: 'white',
-                                            lineHeight: 30,
+                                            lineHeight: 28,
                                             fontWeight: 'bold',
                                             paddingBottom: 10,
                                             textShadowOffset: {width: 1, height: 2},
                                             textShadowColor: '#000',
-                                            fontSize: 20,
+                                            fontSize: 18,
                                             textAlign:'right'
                                         }}>{item.title}</Text>
                                         <View style={{
@@ -468,13 +424,28 @@ class DashBoardView extends Component {
 
     _renderSectionHeader(sectionData, sectionID) {
         return (
-            <LinearGradient colors={["#6c757d",'#959595', Colors.bgColor]} style={styles.linearGradient}>
-                <View style={{flex:1,alignItems:'center',justifyContent:'center'}} >
-                    <Text style={styles.buttonText} onPress={() => {this._scrollView.scrollTo({y: 0, animated: true});}}>
-                        时下热闻
-                    </Text>
-                </View>
-            </LinearGradient>
+            <View key={`${sectionID}`} style={{
+                marginTop: 10,
+                marginLeft: 10,
+                marginRight: 10,
+                width: 200,
+                backgroundColor: Colors.main_yellow,
+                height: 30,
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderRadius: 10,
+                shadowColor: '#5b7392',
+                shadowOffset: {width: 0, height: 2},
+                shadowOpacity: 0.8,
+                shadowRadius: 2,
+            }}>
+                <Text style={{
+                    color: '#fff',
+                    textAlign: 'center',
+                    marginTop: 5
+                }}>{this.state.newsData[0].date} {this.state.newsData[0].weekday}</Text>
+            </View>
         )
     }
 
@@ -575,10 +546,12 @@ const DashDrawerPage = DrawerNavigator({
                             <Image style={{width: 48, height: 48}} source={require('./assets/person.png')}/>
                         </View>
                         <View style={{flex: 1, justifyContent: 'center'}}>
-                            <Text onPress={() => props.navigation.navigate('Login')} style={{
-                                color: '#95999D',
-                                marginRight: 25,
-                            }}>请先登录</Text>
+                            <Text onPress={() => props.navigation.navigate('Login')}
+                                  onLongPress={() => props.navigation.navigate('Test')}
+                                  style={{
+                                      color: '#95999D',
+                                      marginRight: 25,
+                                  }}>请先登录</Text>
                         </View>
                     </View>
                     <View style={{flex: 1, flexDirection: 'row', marginTop: 10}}>
@@ -614,7 +587,8 @@ let mainView = StackNavigator({
     // Dash: {screen: DashBoardView},
     Content: {screen: ContentView},
     Comment: {screen: CommentView},
-    Login: {screen: LoginView}
+    Login: {screen: LoginView},
+    Test:{screen:testDashView}
 }, {
     // initialRouteName: 'DashDrawerPage',
     headerMode: 'none', //解决抽屉弹出有一个空白header的bug
@@ -657,18 +631,5 @@ const styles = StyleSheet.create({
     icon: {
         width: 24,
         height: 24
-    },
-    linearGradient: {
-        flex: 1,
-        width:_winWidth,
-        height:60,
-    },
-    buttonText: {
-        fontSize: 18,
-        fontFamily: 'Gill Sans',
-        textAlign: 'center',
-        margin: 10,
-        color: '#ffffff',
-        backgroundColor: 'transparent',
-    },
+    }
 });
