@@ -4,6 +4,7 @@ import {Header,Container,Content,Left,Body,Right,Button} from 'native-base';
 import api from '../api/_index';
 import FullScreenLoading from '../components/FullScreenLoading';
 import CommonListView from '../components/CommonListView';
+import CommonHeaderView from '../components/CommonHeaderView';
 export default class DailyThemeView extends Component{
   static navigationOptions = {
     header:null,
@@ -54,21 +55,17 @@ export default class DailyThemeView extends Component{
   //views
 
     render(){
+      let _statusBarSetting = {
+          networkVisible:this.state.isHttpRequesting,
+          iosBgColor:'transparent',
+          iosHeight:0,
+          barStyle:'light-content'
+      };
       return (
         <Container>
-          <Header style={{backgroundColor:'#242A2F',borderBottomWidth:0}} iosBarStyle="light-content">
-            <Left>
-              <Button transparent onPress={() => this.props.navigation.navigate('DrawerOpen')}>
-                <Image style={styles.icon} source={require('../assets/menu.png')}/>
-              </Button>
-            </Left>
-            <Body><Text style={{fontSize: 18,color:'white'}}>动漫日报</Text></Body>
-            <Right></Right>
-          </Header>
+          <CommonHeaderView statusBarSetting={_statusBarSetting} headerName="动漫日报" navigation={this.props.navigation}/>
           {this.state.themesData != null ? null : this._renderFullLoadingView()}
-          <Content>
-            {this.state.themesData != null ? <CommonListView data={this.state.themesData} navigation={this.props.navigation}/> : null}
-          </Content>
+            {this.state.themesData != null ? <CommonListView style={{marginTop:50}} data={this.state.themesData} navigation={this.props.navigation}/> : null}
         </Container>
       )
     }

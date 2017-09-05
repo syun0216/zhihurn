@@ -22,7 +22,7 @@ export default class NewStatusBar extends Component{
     networkVisible:false,
     transition:'fade',
     hidden:false,
-    iosBgColor:Colors.bottom_black,
+    iosBgColor:'transparent',
     iosHeight:STATUSBAR_HEIGHT,
     borderBottom:0,
     androidBgColor:'white',

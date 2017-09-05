@@ -263,6 +263,12 @@ class DashBoardView extends Component {
         this._requestNextNewsData(this.getDate(next_page));
     }
 
+    _onErrorToRequestNextPage(){
+        this.setState({requestStatus: LOADING});
+        next_page = current_page - 1;
+        this._requestNextNewsData(this.getDate(next_page));
+    }
+
     _onErrorToRequestFirstPageData() {
         this.setState({
             firstPageLoadingStatus: LOADING,
@@ -287,7 +293,7 @@ class DashBoardView extends Component {
                 {/*<Header style={{backgroundColor: Colors.fontBlack, borderBottomWidth: 0}} iosBarStyle="light-content">*/}
                 {/*<Left>*/}
                 <Button style={{position:'absolute',zIndex:1000,top:10,left:5}} transparent onPress={() => this.props.navigation.navigate('DrawerOpen', {id: 1})}>
-                    <Image style={{width: 24, height: 24}} source={require('./assets/menu.png')}/>
+                    <Image style={{width: 20, height: 20}} source={require('./assets/menu.png')}/>
                 </Button>
                 {/*</Left>*/}
                 {/*<Body><Text style={{fontSize: 18, color: 'white'}}>今日热闻</Text></Body>*/}
@@ -427,7 +433,7 @@ class DashBoardView extends Component {
                                     position: 'absolute',
                                     backgroundColor: '#5b7492',
                                     opacity: 0.3
-                                }}></View>
+                                }} />
                                 <View style={{
                                     width: _winWidth,
                                     display: 'flex',
@@ -454,7 +460,7 @@ class DashBoardView extends Component {
                                         <View style={{
                                             width: 120, height: 4,
                                             backgroundColor: Colors.main_yellow, position: 'absolute', right: 0,bottom:-10
-                                        }}></View>
+                                        }} />
                                     </View>
 
                                 </View>
@@ -468,11 +474,22 @@ class DashBoardView extends Component {
 
     _renderSectionHeader(sectionData, sectionID) {
         return (
-            <LinearGradient colors={["#6c757d",'#959595', Colors.bgColor]} style={styles.linearGradient}>
-                <View style={{flex:1,alignItems:'center',justifyContent:'center'}} >
-                    <Text style={styles.buttonText} onPress={() => {this._scrollView.scrollTo({y: 0, animated: true});}}>
-                        时下热闻
-                    </Text>
+            <LinearGradient colors={['#4c669f', '#3b5998', '#192f6a']} style={styles.linearGradient}>
+                <View style={{flex:1,flexDirection:'row',}}>
+                    <View style={{flex:1,alignItems:'center',justifyContent:'center'}} >
+                    </View>
+                    <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
+                        <Text style={styles.buttonText} onPress={() => {this._scrollView.scrollTo({y: 0, animated: true});}}>
+                            时下热闻
+                        </Text>
+                    </View>
+                    <View style={{flex:1,alignItems:'flex-end',marginRight:15,justifyContent:'center',borderColor:'white'}}>
+                        {/*<TouchableOpacity onPress={() => this.props.navigation.navigate("Login")}>*/}
+                            {/*<View>*/}
+                                {/*<Image style={{width: 30, height: 30}} source={require('./assets/person.png')}/>*/}
+                            {/*</View>*/}
+                        {/*</TouchableOpacity>*/}
+                    </View>
                 </View>
             </LinearGradient>
         )
@@ -487,7 +504,7 @@ class DashBoardView extends Component {
             case LOAD_SUCCESS:
                 return null;
             case LOAD_FAILED:
-                return <FooterUtil message="加载失败,请点击重试" callback={() => this._onPullToRequestNextPageData()}/>;
+                return <FooterUtil message="加载失败,请点击重试" callback={() => this._onErrorToRequestNextPage()}/>;
                 break;
             default:
                 return null;
@@ -662,6 +679,7 @@ const styles = StyleSheet.create({
         flex: 1,
         width:_winWidth,
         height:60,
+        flexDirection:'row'
     },
     buttonText: {
         fontSize: 18,
