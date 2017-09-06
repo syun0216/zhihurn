@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, Text, WebView, Dimensions, Image, StyleSheet} from 'react-native';
+import {View, Text, WebView, Dimensions, Image, StyleSheet,Animated,Easing,TouchableWithoutFeedback} from 'react-native';
 import {
     Container,
     Header,
@@ -22,6 +22,7 @@ import CommonCss from '../components/CommonCss';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import ToastUtil from '../utils/ToastUtil';
+import Colors from '../utils/Colors';
 
 _winWidth = Dimensions.get('window').width;
 _winHeight = Dimensions.get('window').height;
@@ -40,7 +41,10 @@ export default class ContentView extends Component {
             newsContent: null,
             favoriteChecked: false,
             commentsCount: 0,
-            LoadStatus: true
+            LoadStatus: true,
+            positionTop:new Animated.Value(0),
+            fadeInOpacity:new Animated.Value(0),
+            showShareList:false
         };
     }
 
@@ -148,10 +152,51 @@ export default class ContentView extends Component {
         }}/>;
     }
 
+    _renderPreventClickView(){
+        return this.state.showShareList ? <TouchableWithoutFeedback onPress={() => this._toHideShareListView()}>
+            <View style={{width:_winWidth,height:_winHeight,position:'absolute',zIndex:99,top:0,left:0,backgroundColor:'#5b7492',opacity:0.3}}/>
+        </TouchableWithoutFeedback> : null;
+    }
+
+    _renderShareView(){
+        return (
+            <Animated.View style={{flex:1,flexDirection:'column',backgroundColor:'white',position:'absolute',zIndex:100,borderTopWidth:1,borderTopColor:'#ccc',width:_winWidth,height:150, bottom: this.state.positionTop.interpolate({
+                inputRange: [0, 1],
+                outputRange: [-150, 0]
+            }),
+                opacity: this.state.fadeInOpacity}}>
+                <View style={{width:_winWidth,height:30,borderBottomWidth:1,borderColor:"#ccc"}}>
+                    <Text style={{flex:1,textAlign:'center',marginTop:5,color:Colors.fontBlack}}>分享文章</Text>
+                </View>
+                <View style={{flex:1,flexDirection:'row'}}>
+                    <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
+                        <Image style={{width:32,height:32}} source={require('../assets/moments.png')}/>
+                        <Text style={{fontSize:12,color:Colors.fontBlack,marginTop:10}}>朋友圈</Text>
+                    </View>
+                    <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
+                        <Image style={{width:36,height:36}} source={require('../assets/wechat.png')}/>
+                        <Text style={{fontSize:12,color:Colors.fontBlack,marginTop:6}}>微信好友</Text>
+                    </View>
+                    <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
+                        <Image style={{width:36,height:36}} source={require('../assets/qq.png')}/>
+                        <Text style={{fontSize:12,color:Colors.fontBlack,marginTop:4}}>qq</Text>
+                    </View>
+                    <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
+                        <Image style={{width:32,height:32}} source={require('../assets/weibo.png')}/>
+                        <Text style={{fontSize:12,color:Colors.fontBlack,marginTop:10}}>微博</Text>
+                    </View>
+                </View>
+            </Animated.View>
+        )
+    }
+
     _renderMainContentView() {
         const navigation = this.props.navigation;
         return (
             <Container>
+                {this.state.showShareList ? this._renderPreventClickView() : null}
+                {/*{this.state.showShareList ? this._renderShareView() : null}*/}
+                {this._renderShareView()}
                 <Content>
                     <WebView bounces={false}
                              scalesPageToFit={true}
@@ -159,6 +204,7 @@ export default class ContentView extends Component {
                              style={{width: _winWidth, height: _winHeight}}>
                     </WebView>
                     {/* <HTMLView value={this.state.newsContent.html}/> */}
+                    {/*{this._renderShareView()}*/}
                 </Content>
                 <Footer style={{backgroundColor: 'white'}}>
                     <Button transparent style={styles.bottomButton} onPress={() => this.props.navigation.goBack()}><Icon
@@ -166,8 +212,8 @@ export default class ContentView extends Component {
                     <Button transparent style={styles.bottomButton}
                             onPress={() => this._toNextArticle()}><MaterialCommunityIcons name="chevron-double-down"
                                                                                           style={[styles.IconStyle, {fontSize: 22}]}/></Button>
-                    <Button transparent style={styles.bottomButton}><MaterialCommunityIcons name="share-variant"
-                                                                                            style={[styles.IconStyle, {fontSize: 18}]}/></Button>
+                    <Button transparent style={styles.bottomButton}
+                            onPress={() => this._toShowShareListView()}><MaterialCommunityIcons name="share-variant" style={[styles.IconStyle, {fontSize: 18}]}/></Button>
                     <Button transparent style={styles.bottomButton} onPress={() => this.addNewsToFavorite()}>
                         {this.state.favoriteChecked ?
                             <MaterialIcons name='favorite' style={{fontSize: 20, color: '#ff5858'}}/> :
@@ -228,6 +274,32 @@ export default class ContentView extends Component {
         // //     }
         //   }
         // }
+    }
+
+    _toShowShareListView(){
+        this.setState({
+            showShareList:true
+        });
+        Animated.parallel(['fadeInOpacity', 'positionTop'].map(property => {
+            return Animated.spring(this.state[property], {
+                toValue: 1,
+                duration: 1000,
+                easing: Easing.linear
+            })
+        })).start();
+    }
+
+    _toHideShareListView(){
+        this.setState({
+            showShareList:false
+        });
+        Animated.sequence([ 'positionTop'].map(property => {
+            return Animated.timing(this.state[property], {
+                toValue: 0,
+                duration: 400,
+                easing: Easing.linear
+            })
+        })).start();
     }
 
     addNewsToFavorite() {

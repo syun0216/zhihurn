@@ -1,4 +1,4 @@
-const ROOT_URL = "https://zhihu-agent.herokuapp.com/get?api=/";
+const ROOT_URL = "http://news-at.zhihu.com/api/";
 let apiZhiHu = {
     news:'4/news/latest',
     newsbyid:'4/news/',

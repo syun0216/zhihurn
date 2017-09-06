@@ -475,21 +475,21 @@ class DashBoardView extends Component {
     _renderSectionHeader(sectionData, sectionID) {
         return (
             <LinearGradient colors={['#4c669f', '#3b5998', '#192f6a']} style={styles.linearGradient}>
-                <View style={{flex:1,flexDirection:'row',}}>
-                    <View style={{flex:1,alignItems:'center',justifyContent:'center'}} >
-                    </View>
-                    <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
+                <View style={{flex:1,flexDirection:'row',alignItems:'center',justifyContent:'center'}}>
+                    {/*<View style={{flex:1,alignItems:'center',justifyContent:'center'}} >*/}
+                    {/*</View>*/}
+                    <View>
                         <Text style={styles.buttonText} onPress={() => {this._scrollView.scrollTo({y: 0, animated: true});}}>
                             时下热闻
                         </Text>
                     </View>
-                    <View style={{flex:1,alignItems:'flex-end',marginRight:15,justifyContent:'center',borderColor:'white'}}>
-                        {/*<TouchableOpacity onPress={() => this.props.navigation.navigate("Login")}>*/}
-                            {/*<View>*/}
-                                {/*<Image style={{width: 30, height: 30}} source={require('./assets/person.png')}/>*/}
-                            {/*</View>*/}
-                        {/*</TouchableOpacity>*/}
-                    </View>
+                    {/*<View style={{flex:1,alignItems:'flex-end',marginRight:15,justifyContent:'center',borderColor:'white'}}>*/}
+                        {/*/!*<TouchableOpacity onPress={() => this.props.navigation.navigate("Login")}>*!/*/}
+                            {/*/!*<View>*!/*/}
+                                {/*/!*<Image style={{width: 30, height: 30}} source={require('./assets/person.png')}/>*!/*/}
+                            {/*/!*</View>*!/*/}
+                        {/*/!*</TouchableOpacity>*!/*/}
+                    {/*</View>*/}
                 </View>
             </LinearGradient>
         )
