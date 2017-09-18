@@ -1,11 +1,13 @@
 import React,{Component} from 'react';
 import PropTypes from 'prop-types';
-import {ListView,RefreshControl,Text,StyleSheet,Dimensions,View,Image,TouchableOpacity,TouchableWithoutFeedback} from 'react-native';
+import {ListView,RefreshControl,Text,StyleSheet,Dimensions,View,Image,TouchableOpacity,TouchableWithoutFeedback,ScrollView} from 'react-native';
 import {ListItem,Body,Left,Right,Thumbnail,Button,Container,Content,Header} from 'native-base';
 import LinearGradient from 'react-native-linear-gradient';
 import Colors from '../utils/Colors';
 _winWidth = Dimensions.get('window').width;
-_windHeight = Dimensions.get('window').height;
+_winHeight = Dimensions.get('window').height;
+let list_data = [];
+
 export default class CommonListView extends Component{
   static propTypes = {
     //  refreshable:React.PropTypes.bool,
@@ -15,6 +17,7 @@ export default class CommonListView extends Component{
     //  requestingFunc:React.PropTypes.func,
     //  data:React.PropTypes.object.isRequired,
      navigation:React.PropTypes.object.isRequired,
+     scrollInfo:React.PropTypes.func,
         // renderRow:React.PropTypes.func.isRequired,
   };
   _refreshable = false;
@@ -29,6 +32,7 @@ export default class CommonListView extends Component{
   }
 
   componentDidMount(){
+      list_data = this.props.data.stories;
     this.setState({
       dataSource:this.state.dataSource.cloneWithRows(this.props.data.stories)
     });
@@ -46,7 +50,7 @@ export default class CommonListView extends Component{
 
 //views
     render(){
-      return this._mainListView()
+      return <View style={{backgroundColor:Colors.fontBlack}}>{this._mainListView()}</View>;
     }
 
   _mainListView(){
@@ -65,6 +69,8 @@ export default class CommonListView extends Component{
           enableEmptySections={true}
           showsVerticalScrollIndicator={false}
           renderHeader={() => this._renderHeaderView()}
+          onScroll={(sview) => this.props.scrollInfo(sview)}
+          scrollEventThrottle={20}
           // renderSectionHeader={(sectionData,sectionID) => this._renderSectionHeaderView(sectionData,sectionID)}
           refreshControl={refreshControl}
         />
@@ -73,10 +79,11 @@ export default class CommonListView extends Component{
 
   _renderListItemView(rowData){
       return (
-          <TouchableWithoutFeedback transparent style={{height: 70, flex: 1, padding: 10, justifyContent: 'center'}}
+          <TouchableWithoutFeedback transparent style={{height: 70, flex: 1, padding: 10, justifyContent: 'center',backgroundColor:Colors.bgColor}}
                                     onPress={() => this.props.navigation.navigate('Content', {
                                         id: rowData.id,
                                         title: rowData.title,
+                                        list_data:list_data
                                     })}>
             <View style={{
                 backgroundColor: 'white',
@@ -103,7 +110,7 @@ export default class CommonListView extends Component{
 
   _renderHeaderView(){
     return (
-        <View>
+        <View >
             <View style={styles.titleImg}>
                 <View style={{
                     width: _winWidth,

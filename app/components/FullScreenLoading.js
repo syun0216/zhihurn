@@ -8,11 +8,17 @@ import {
     Text,
     View,
     ActivityIndicatorIOS,
-    ActivityIndicator
+    ActivityIndicator,
+    Image
 } from 'react-native';
 
 export default class FullScreenLoadingView extends Component {
-
+    static propTypes = {
+        isLoading:React.PropTypes.bool.isRequired,
+    };
+    static defaultProps = {
+        isLoading:false
+    };
     // 构造
     constructor(props) {
         super(props);
@@ -24,10 +30,12 @@ export default class FullScreenLoadingView extends Component {
         let message = this.state.httpRequestTips == null ? '正在加载中,请稍候...' : this.state.httpRequestTips;
 
         return (
+            this.props.isLoading ?
             <View style={styles.fullscreencontainer}>
-                <ActivityIndicator size="small"/>
-                <Text style={{color:'#222', marginTop:10}}>{message}</Text>
-            </View>
+                {/*<ActivityIndicator size="small"/>*/}
+                <Image style={{width:60,height:60}} resizeMode="contain" source={require('../assets/Wedges.gif')}/>
+                {/*<Text style={{color:'#222', marginTop:10}}>{message}</Text>*/}
+            </View> :null
         );
     }
 
@@ -46,7 +54,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginTop:-30,
-        zIndex:10000
+        zIndex:10000,
+        backgroundColor:'#F1FAFE'
     }
 
 });

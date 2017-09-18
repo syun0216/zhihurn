@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, Text, WebView, Dimensions, Image, StyleSheet,Animated,Easing,TouchableWithoutFeedback} from 'react-native';
+import {View, Text, WebView,ScrollView, Dimensions, Image, StyleSheet,Animated,Easing,TouchableWithoutFeedback,Platform} from 'react-native';
 import {
     Container,
     Header,
@@ -44,7 +44,9 @@ export default class ContentView extends Component {
             LoadStatus: true,
             positionTop:new Animated.Value(0),
             fadeInOpacity:new Animated.Value(0),
-            showShareList:false
+            showShareList:false,
+            statusBarHeight:0,
+            bounceWidth:0
         };
     }
 
@@ -58,8 +60,9 @@ export default class ContentView extends Component {
     render() {
         return (
             <Container>
-                <NewStatusBar networkVisible={this.state.isHttpRequesting} iosBgColor="white" borderBottom={1}/>
-                {this.state.isHttpRequesting ? this._renderFullLoadingView() : null}
+                {Platform.OS === 'android' ? <NewStatusBar androidBgColor="black"/> :
+                <NewStatusBar style={{opacity:0}} networkVisible={this.state.isHttpRequesting} androidBgColor="black" iosHeight={0} iosBgColor="white" borderBottom={1}/>}
+                {this._renderFullLoadingView()}
                 {this.state.newsContent === null ?
                     null : this._renderMainContentView()}
                 {this.state.LoadStatus ? null : this._renderErrorView()}
@@ -132,7 +135,8 @@ export default class ContentView extends Component {
                     </html>`;
                 // let _html = `<div><p style="color:red">这是测试的html</p></div>`
                 data.data.html = _html;
-                this.setState({isHttpRequesting: false, newsContent: data.data});
+                setTimeout(() => {this.setState({isHttpRequesting: false, newsContent: data.data});},400)
+                // this.setState({isHttpRequesting: false, newsContent: data.data});
                 // console.log(this.state.newsContent);
             }
         }).catch((error) => {
@@ -141,8 +145,15 @@ export default class ContentView extends Component {
         });
     }
 
+    // _getScrollPosition(scrollview){
+    //     this.setState({
+    //         bounceWidth:-scrollview.nativeEvent.contentOffset.y + 200
+    //     });
+    //     console.log(scrollview.nativeEvent.contentOffset.y);
+    // }
+
     _renderFullLoadingView() {
-        return <FullLoadingScreen message="正在加载中..."/>
+        return <FullLoadingScreen message="正在加载中..." isLoading={this.state.isHttpRequesting}/>
     }
 
     _renderErrorView() {
@@ -160,13 +171,13 @@ export default class ContentView extends Component {
 
     _renderShareView(){
         return (
-            <Animated.View style={{flex:1,flexDirection:'column',backgroundColor:'white',position:'absolute',zIndex:100,borderTopWidth:1,borderTopColor:'#ccc',width:_winWidth,height:150, bottom: this.state.positionTop.interpolate({
+            <Animated.View style={{flex:1,flexDirection:'column',backgroundColor:'white',position:'absolute',zIndex:1000,borderTopWidth:1,borderTopColor:'#ccc',width:_winWidth,height:150, bottom: this.state.positionTop.interpolate({
                 inputRange: [0, 1],
                 outputRange: [-150, 0]
             }),
                 opacity: this.state.fadeInOpacity}}>
-                <View style={{width:_winWidth,height:30,borderBottomWidth:1,borderColor:"#ccc"}}>
-                    <Text style={{flex:1,textAlign:'center',marginTop:5,color:Colors.fontBlack}}>分享文章</Text>
+                <View style={{width:_winWidth,height:40,borderBottomWidth:1,borderColor:"#ccc"}}>
+                    <Text style={{flex:1,textAlign:'center',marginTop:13,color:Colors.fontBlack}}>分享文章</Text>
                 </View>
                 <View style={{flex:1,flexDirection:'row'}}>
                     <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
@@ -195,17 +206,21 @@ export default class ContentView extends Component {
         return (
             <Container>
                 {this.state.showShareList ? this._renderPreventClickView() : null}
-                {/*{this.state.showShareList ? this._renderShareView() : null}*/}
                 {this._renderShareView()}
-                <Content>
-                    <WebView bounces={false}
-                             scalesPageToFit={true}
-                             source={{html: this.state.newsContent.html}}
-                             style={{width: _winWidth, height: _winHeight}}>
-                    </WebView>
-                    {/* <HTMLView value={this.state.newsContent.html}/> */}
-                    {/*{this._renderShareView()}*/}
-                </Content>
+                {/*<ScrollView*/}
+                    {/*onScroll={(scrollview) => this._getScrollPosition(scrollview)}*/}
+                    {/*scrollEventThrottle={15}>*/}
+                    {/*<View>*/}
+                        <WebView bounces={true}
+                                 scalesPageToFit={true}
+                                 source={{html: this.state.newsContent.html}}
+                                 style={{width: _winWidth, height: _winHeight}}>
+                        </WebView>
+                    {/*</View>*/}
+                {/*</ScrollView>*/}
+                    {/*<View style={{flex:1,justifyContent:'center',alignItems:'center',height:200}}>*/}
+                        {/*<View style={{height:3,width:this.state.bounceWidth,backgroundColor:Colors.main_blue}}/>*/}
+                    {/*</View>*/}
                 <Footer style={{backgroundColor: 'white'}}>
                     <Button transparent style={styles.bottomButton} onPress={() => this.props.navigation.goBack()}><Icon
                         name='arrow-back' style={{color: '#959595'}}/></Button>
@@ -227,21 +242,13 @@ export default class ContentView extends Component {
                             })}>
                         <MaterialCommunityIcons name="comment-processing-outline"
                                                 style={[styles.IconStyle, {fontSize: 18}]}/>
-                        <Text style={[{
+                        <Text style={{
                             position: 'absolute',
                             top: 0,
-                            color: '#ff5858'
-                        }, this.state.commentsCount > 10 ? {right: 14} : {right: 20}]}>{this.state.commentsCount}</Text>
+                            color: '#ff5858',
+                            left:35
+                        }}>{this.state.commentsCount}</Text>
                     </Button>
-                    {/* <Left>
-            <Button transparent onPress={() => this.props.navigation.goBack()}>
-              <Icon name='arrow-back'/>
-            </Button>
-          </Left>
-          <Body>
-            <Title>{navigation.state.params.title}</Title>
-          </Body>
-          <Right/> */}
                 </Footer>
             </Container>
         );

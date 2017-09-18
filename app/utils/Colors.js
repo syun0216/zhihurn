@@ -8,7 +8,7 @@ let colors = {
     bottom_black:"#242A2F",
     fontBlack:"#323233",
     main_blue:"#1296db",
-    bgColor:'#f9faff',
+    bgColor:'#edeff7',
     main_yellow:'#ffd300'
 };
 
